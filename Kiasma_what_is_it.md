@@ -76,39 +76,8 @@ Leveraging the governance power accumulated in Phase 1, Kiasma launches the firs
 The **$KMA** token is not static. It is designed to evolve alongside the protocol, transforming from a value accumulation tool (Phase 1) into a deflationary network asset (Phase 2).
 
 ### 1. The Dual Value Engine
-Kiasma's strength lies in its transition mechanism. The token captures value in two distinct ways during the project's lifecycle:
-
-#### 🔄 Phase 1: The "Black Hole" (Accumulation)
-In this phase, $KMA acts as an intelligent **Receipt Token** (similar to an on-chain ETF).
-*   **Asset-Backed:** Every $KMA is 100% backed by the underlying assets in the Vault (LINK, PYTH, ETH, USDC).
-*   **Yield-Bearing:** Staking yields are not sold for profit. They are used to buy more underlying tokens.
-*   **Result:** The intrinsic value (NAV) of every single $KMA token increases constantly, regardless of market sentiment.
-
-#### 🔥 Phase 2: The Deflationary Switch (Scarcity)
-When the "Programmable Layer" (Router) goes online, $KMA becomes the native network token.
-*   **Routing Fees:** A portion of the fees paid by dApps to use the router is used for a programmatic **Buyback & Burn** of $KMA on the open market.
-*   **Decoupling:** The token's value no longer depends solely on the vault's assets, but on the usage volume of the data infrastructure.
-
-### 2. The "Fair Launch" Protocol
-We believe neutral infrastructure must be born neutral. We have eliminated unfair advantages to ensure total alignment between the team and investors.
-
-| Feature | Detail | Why it matters |
 | :--- | :--- | :--- |
 | **Zero Founder Allocation** | **0%** | The team must buy tokens on the same terms as the public. No free tokens to dump on the market. |
-| **No VC Lock-ups** | **0%** | No private investors with discounted prices waiting for unlocks to sell. |
-| **Liquidity Buffer** | **40%** | A significant portion of assets is kept liquid to ensure fast exits without "bank runs." |
-
-### 3. Fee Structure (Sustainability)
-Fees are designed to maintain the protocol, fund the ZK-Router development, and reward long-term depositors.
-
-*   **Management Fee:** 0.50% p.a. (Reduced to **0.25%** for "Early Bird" depositors).
-*   **Performance Fee:** 15% calculated on **Yield Only** (High Water Mark model). You never pay fees on your principal capital.
-*   **Routing Fee (Phase 2):** ~0.1% per data request (Projected).
-
----
-
-## PART 4: The Launch Tweet Thread
-
 *Here is the 6-tweet thread optimized for X (Twitter).*
 
 **Tweet 1 (The Hook)**

@@ -81,41 +81,6 @@ To solve the "Trust Paradox" (why trust Kiasma?), we employ **Zero-Knowledge Cop
 
 ---
 
-## 5. Tokenomics: $KMA
-
-**$KMA** is an **Adaptive Utility Asset**. It evolves with the protocol.
-
-### 5.1 Phase 1: The Accumulator (Receipt Token)
-*   **Backing:** 100% backed by the Vault assets.
-*   **Value Accrual:** As the Vault earns yield and auto-compounds, the NAV of $KMA rises. It is a "Black Hole" for oracle value.
-
-### 5.2 Phase 2: The Network Asset (Deflationary)
-*   **Utility:** Becomes the native token of the Router.
-*   **Buyback & Burn:** A portion of the **Routing Fees** is used to programmatically buy back and burn $KMA. The value decouples from the Vault and correlates with network usage.
-
-### 5.3 Fair Launch Protocol
-We believe neutral infrastructure must be born neutral.
-
-| Feature | Detail | Why it matters |
-| :--- | :--- | :--- |
-| **Zero Founder Allocation** | **0%** | Team buys in like everyone else. No free dumps. |
-| **No VC Lock-ups** | **0%** | No private rounds. Pure market pricing. |
-| **Management Fee** | **0.50%** | Reduced to **0.25%** for "Early Bird" depositors. |
-| **Performance Fee** | **15%** | On **Yield Only** (High Water Mark). |
-
----
-
-## 6. Risk Analysis & Mitigation
-
-| Risk Category | Mitigation Strategy |
-| :--- | :--- |
-| **Smart Contract Risk** | **Modular Architecture:** Adapters are isolated. **Tier-1 Audits** (OpenZeppelin/Trail of Bits). |
-| **Asset Failure (Falling Knife)** | **Circuit Breakers:** Auto-pause buying if asset drops >20% in 24h. **Diversification:** Max 15% per asset. |
-| **Liquidity Crisis** | **Merkle Exit Queue:** Pull-based claims ensure low gas costs. **Liquid Buffer:** 40% always liquid. |
-| **Execution Risk (Phase 2)** | **Ecosystem Fund:** We fund ZK developers via grants rather than building everything in-house. |
-
----
-
 ## 7. Roadmap
 
 ### Phase 1: The Foundation (Q1-Q2 2026)

@@ -1,73 +1,78 @@
-# React + TypeScript + Vite
+# Kiasma Frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+The official user interface for **Kiasma Network** - The Oracle Convergence Layer.
+Built with modern web technologies to deliver a premium, "cyber-oracle" aesthetic and high-performance trading experience.
 
-Currently, two official plugins are available:
+## ⚡ Tech Stack
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
+*   **Framework:** [React 19](https://react.dev/) + [TypeScript](https://www.typescriptlang.org/)
+*   **Build Tool:** [Vite](https://vitejs.dev/)
+*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) (CSS-first configuration)
+*   **Animations:** [GSAP](https://gsap.com/) (ScrollTrigger, Timeline)
+*   **Charting:** [Lightweight Charts](https://tradingview.github.io/lightweight-charts/) (TradingView)
+*   **Icons:** [Lucide React](https://lucide.dev/)
 
-## React Compiler
+## 🚀 Features
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+*   **Landing Page:** Immersive scroll animations and 3D-style visuals.
+*   **Genesis Synapse (NFT):** "Angel Round" investment page with 3D card effects and utility breakdown.
+*   **Trade Interface:** Real-time candlestick chart (mock data) with buy/sell swap UI.
+*   **Staking Vault:** Dashboard for depositing assets and tracking APY.
+*   **Wallet Integration:** Mock `WalletContext` for demonstrating connection states and balance updates.
 
-## Expanding the ESLint configuration
+## 🛠️ Setup & Development
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
+### Prerequisites
+*   Node.js (v18+)
+*   npm or pnpm
 
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
+### Installation
 
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
+```bash
+# Navigate to frontend directory
+cd frontend
 
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+# Install dependencies
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+### Running Locally
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x'
-import reactDom from 'eslint-plugin-react-dom'
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-])
+```bash
+# Start development server
+npm run dev
 ```
+The app will be available at `http://localhost:5173`.
+
+### Building for Production
+
+```bash
+# Create production build
+npm run build
+
+# Preview the build
+npm run preview
+```
+
+## 📂 Project Structure
+
+```
+frontend/
+├── src/
+│   ├── components/     # Reusable UI components (Button, Card, TradeChart)
+│   ├── context/        # Global state (WalletContext)
+│   ├── layouts/        # Page layouts (MainLayout, Navbar)
+│   ├── pages/          # Application pages (Landing, Trade, NFT, etc.)
+│   ├── index.css       # Tailwind v4 theme & global styles
+│   └── main.tsx        # Entry point
+├── public/             # Static assets
+└── index.html          # HTML template
+```
+
+## 🎨 Design System
+
+The design uses a custom "Cyber-Oracle" theme defined in `src/index.css`:
+*   **Primary:** Neon Green (`#00ff9d`)
+*   **Secondary:** Deep Purple (`#9d00ff`)
+*   **Background:** Dark Void (`#0a0a0a`)
+*   **Fonts:** `Outfit` (Headings) & `Inter` (Body)

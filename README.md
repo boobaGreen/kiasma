@@ -3,7 +3,7 @@
 > **The Oracle Convergence Layer.**
 > *Where Data Converges. Where Value Compounds.*
 
-![Kiasma Banner](https://via.placeholder.com/1200x400?text=KIASMA+NETWORK)
+
 
 ## 🌌 Vision
 

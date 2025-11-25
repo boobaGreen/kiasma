@@ -17,8 +17,8 @@ Built with modern web technologies to deliver a premium, "cyber-oracle" aestheti
 *   **Landing Page:** Immersive scroll animations and 3D-style visuals.
 *   **Genesis Synapse (NFT):** "Angel Round" investment page with 3D card effects and utility breakdown.
 *   **Trade Interface:** Real-time candlestick chart (mock data) with buy/sell swap UI.
-*   **Staking Vault:** Dashboard for depositing assets and tracking APY.
-*   **Wallet Integration:** Mock `WalletContext` for demonstrating connection states and balance updates.
+*   **Staking Vault:** Fully functional Vault interface for depositing WETH and withdrawing stKMA with real-time contract interaction.
+*   **Wallet Integration:** Full Web3 integration using `wagmi` and `RainbowKit` for wallet connection and transaction management.
 
 ## 🛠️ Setup & Development
 
@@ -60,7 +60,6 @@ npm run preview
 frontend/
 ├── src/
 │   ├── components/     # Reusable UI components (Button, Card, TradeChart)
-│   ├── context/        # Global state (WalletContext)
 │   ├── layouts/        # Page layouts (MainLayout, Navbar)
 │   ├── pages/          # Application pages (Landing, Trade, NFT, etc.)
 │   ├── index.css       # Tailwind v4 theme & global styles

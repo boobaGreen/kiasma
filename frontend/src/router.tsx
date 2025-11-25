@@ -6,6 +6,7 @@ import RoadmapPage from './pages/RoadmapPage';
 import NftPage from './pages/NftPage';
 import TradePage from './pages/TradePage';
 import StakingPage from './pages/StakingPage';
+import VaultPage from './pages/VaultPage';
 
 export const router = createBrowserRouter([
     {
@@ -35,6 +36,10 @@ export const router = createBrowserRouter([
             {
                 path: 'staking',
                 element: <StakingPage />,
+            },
+            {
+                path: 'vault',
+                element: <VaultPage />,
             },
         ],
     },

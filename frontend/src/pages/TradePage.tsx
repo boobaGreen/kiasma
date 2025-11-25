@@ -4,12 +4,13 @@ import { ArrowDownUp, Settings, Info, TrendingUp } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import TradeChart from '../components/TradeChart';
-import { useWallet } from '../context/WalletContext';
+import { useAccount } from 'wagmi';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const TradePage = () => {
     const containerRef = useRef(null);
     const [amount, setAmount] = useState('');
-    const { isConnected } = useWallet();
+    const { isConnected } = useAccount();
 
     useGSAP(() => {
         gsap.from('.trade-card', {
@@ -165,9 +166,15 @@ const TradePage = () => {
                                 <span>1 ETH = 2,450.5 KMA</span>
                             </div>
 
-                            <Button size="lg" className="w-full py-6 text-lg">
-                                {isConnected ? 'Swap' : 'Connect Wallet'}
-                            </Button>
+                            {!isConnected ? (
+                                <div className="w-full py-4 flex justify-center bg-primary/10 rounded-lg">
+                                    <ConnectButton />
+                                </div>
+                            ) : (
+                                <Button size="lg" className="w-full py-6 text-lg">
+                                    Swap
+                                </Button>
+                            )}
                         </div>
                     </Card>
                 </div>

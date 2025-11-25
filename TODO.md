@@ -1,13 +1,14 @@
 # Kiasma Network - Next Steps
 
 ## 1. Vault Testing (Fork Environment)
-- [ ] **Impersonate Whale:** Create a script to impersonate a WETH holder on Arbitrum Mainnet.
-- [ ] **Fund Test Account:** Transfer real WETH (forked) to the local test account.
-- [ ] **Test Deposit:** Verify `KiasmaVault.deposit()` works with real WETH.
-- [ ] **Test Withdraw:** Verify `KiasmaVault.withdraw()` works.
+- [x] **Impersonate Whale:** Create a script to impersonate a WETH holder on Arbitrum Mainnet.
+- [x] **Fund Test Account:** Transfer real WETH (forked) to the local test account.
+- [x] **Test Deposit:** Verify `KiasmaVault.deposit()` works with real WETH.
+- [x] **Test Withdraw:** Verify `KiasmaVault.withdraw()` works.
 
 ## 2. Frontend Development
-- [ ] **Vault Page:** Create a dedicated page for Vault interactions (APY display, Deposit/Withdraw forms).
+- [x] **Vault Page:** Create a dedicated page for Vault interactions (APY display, Deposit/Withdraw forms).
+- [x] **Trade Page:** Fix `useWallet` error and migrate to Wagmi hooks.
 - [ ] **Landing Page:** Build the main entry point with Hero section, Value Prop, and "Enter App" CTA.
 - [ ] **Dashboard:** Create a user dashboard showing total value locked, personal yield, and NFT status.
 

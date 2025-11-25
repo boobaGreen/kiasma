@@ -1,15 +1,15 @@
 import React, { useRef } from 'react';
-import { Outlet, NavLink } from 'react-router-dom';
-import { Menu, X, Wallet, ChevronRight, LogOut } from 'lucide-react';
+import { Outlet, NavLink, useLocation } from 'react-router-dom';
+import { Menu, X, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import clsx from 'clsx';
-import { WalletProvider, useWallet } from '../context/WalletContext';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = React.useState(false);
     const navRef = useRef(null);
-    const { isConnected, address, connect, disconnect } = useWallet();
+    const location = useLocation();
 
     useGSAP(() => {
         gsap.from(navRef.current, {
@@ -28,8 +28,20 @@ const Navbar = () => {
         { name: 'Staking', path: '/staking' },
     ];
 
+    // Check if we are on a "Demo" page
+    const isDemoPage = !['/', '/nft'].includes(location.pathname);
+
     return (
         <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">
+            {/* Demo Mode Banner */}
+            {isDemoPage && (
+                <div className="bg-yellow-500/10 border-b border-yellow-500/20 py-1 text-center">
+                    <p className="text-xs font-medium text-yellow-500 tracking-wide">
+                        ⚠️ DEMO MODE: DATA IS SIMULATED
+                    </p>
+                </div>
+            )}
+
             <div className="max-w-7xl mx-auto px-6 h-20 flex items-center justify-between">
                 {/* Logo */}
                 <NavLink to="/" className="flex items-center gap-2 group">
@@ -57,24 +69,9 @@ const Navbar = () => {
 
                 {/* Connect Wallet & Mobile Menu */}
                 <div className="flex items-center gap-4">
-                    {isConnected ? (
-                        <button
-                            onClick={disconnect}
-                            className="hidden md:flex items-center gap-2 px-4 py-2 bg-primary/10 hover:bg-red-500/10 border border-primary/20 hover:border-red-500/20 rounded-lg transition-all duration-300 group"
-                        >
-                            <div className="w-2 h-2 rounded-full bg-primary group-hover:bg-red-500 transition-colors" />
-                            <span className="text-sm font-medium text-white group-hover:text-red-500 transition-colors">{address}</span>
-                            <LogOut className="w-4 h-4 text-muted group-hover:text-red-500 ml-2 transition-colors" />
-                        </button>
-                    ) : (
-                        <button
-                            onClick={connect}
-                            className="hidden md:flex items-center gap-2 px-4 py-2 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-300 group"
-                        >
-                            <Wallet className="w-4 h-4 text-primary group-hover:scale-110 transition-transform" />
-                            <span className="text-sm font-medium text-white">Connect Wallet</span>
-                        </button>
-                    )}
+                    <div className="hidden md:block">
+                        <ConnectButton showBalance={false} chainStatus="icon" accountStatus="address" />
+                    </div>
 
                     <button
                         className="md:hidden p-2 text-white"
@@ -104,16 +101,9 @@ const Navbar = () => {
                             <ChevronRight className="w-4 h-4" />
                         </NavLink>
                     ))}
-                    <button
-                        onClick={() => {
-                            isConnected ? disconnect() : connect();
-                            setIsOpen(false);
-                        }}
-                        className="flex items-center justify-center gap-2 px-4 py-3 bg-white/5 hover:bg-white/10 border border-white/10 rounded-lg transition-all duration-300 mt-4"
-                    >
-                        <Wallet className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-medium text-white">{isConnected ? 'Disconnect' : 'Connect Wallet'}</span>
-                    </button>
+                    <div className="mt-4 flex justify-center">
+                        <ConnectButton />
+                    </div>
                 </div>
             )}
         </nav>
@@ -161,15 +151,13 @@ const Footer = () => {
 
 const MainLayout = () => {
     return (
-        <WalletProvider>
-            <div className="min-h-screen bg-background text-text selection:bg-primary/30">
-                <Navbar />
-                <main className="pt-20 min-h-[calc(100vh-300px)]">
-                    <Outlet />
-                </main>
-                <Footer />
-            </div>
-        </WalletProvider>
+        <div className="min-h-screen bg-background text-text selection:bg-primary/30">
+            <Navbar />
+            <main className="pt-20 min-h-[calc(100vh-300px)]">
+                <Outlet />
+            </main>
+            <Footer />
+        </div>
     );
 };
 

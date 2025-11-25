@@ -1,13 +1,82 @@
-import { useRef } from 'react';
+import { useRef, useEffect } from 'react';
 import { Section, Card, Button } from '../components/ui';
-import { Diamond, ShieldCheck, Zap, Crown, Coins, Vote, Sparkles } from 'lucide-react';
+import { Diamond, ShieldCheck, Zap, Crown, Coins, Vote, Sparkles, Loader2 } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
+import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
+import { formatEther } from 'viem';
+import { ConnectButton } from '@rainbow-me/rainbowkit';
+
+// Contract Config
+import contractAddresses from '../contract-addresses.json';
+
+// Contract Config
+const CONTRACT_ADDRESS = contractAddresses.GenesisSynapse as `0x${string}`;
+const ABI = [
+    {
+        "inputs": [],
+        "name": "totalSupply",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "MINT_PRICE",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    },
+    {
+        "inputs": [],
+        "name": "mint",
+        "outputs": [],
+        "stateMutability": "payable",
+        "type": "function"
+    }
+];
 
 const NftPage = () => {
     const containerRef = useRef(null);
     const cardRef = useRef(null);
+    const { isConnected } = useAccount();
 
+    // Web3 Hooks
+    const { data: totalSupply, refetch: refetchSupply } = useReadContract({
+        address: CONTRACT_ADDRESS,
+        abi: ABI,
+        functionName: 'totalSupply',
+    });
+
+    const { data: mintPrice } = useReadContract({
+        address: CONTRACT_ADDRESS,
+        abi: ABI,
+        functionName: 'MINT_PRICE',
+    });
+
+    const { data: hash, writeContract, isPending } = useWriteContract();
+    const { isLoading: isConfirming, isSuccess: isConfirmed } = useWaitForTransactionReceipt({
+        hash,
+    });
+
+    const handleMint = () => {
+        if (!mintPrice) return;
+        writeContract({
+            address: CONTRACT_ADDRESS,
+            abi: ABI,
+            functionName: 'mint',
+            value: mintPrice as bigint,
+        });
+    };
+
+    // Refetch supply after successful mint
+    useEffect(() => {
+        if (isConfirmed) {
+            refetchSupply();
+        }
+    }, [isConfirmed, refetchSupply]);
+
+    // Animations
     useGSAP(() => {
         const tl = gsap.timeline();
 
@@ -73,6 +142,12 @@ const NftPage = () => {
         }
     ];
 
+    // Derived State
+    const currentSupply = totalSupply ? Number(totalSupply) : 0;
+    const maxSupply = 300;
+    const progress = (currentSupply / maxSupply) * 100;
+    const priceEth = mintPrice ? formatEther(mintPrice as bigint) : "1.0";
+
     return (
         <div ref={containerRef} className="overflow-hidden">
             {/* Hero Section */}
@@ -93,23 +168,49 @@ const NftPage = () => {
                         Fund the protocol launch and secure lifetime utilities that compound with Kiasma's success.
                     </p>
 
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-text">
-                        <Button size="lg" className="group">
-                            Mint Synapse <Sparkles className="ml-2 w-4 h-4 group-hover:rotate-12 transition-transform" />
-                        </Button>
+                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-text items-center">
+                        {isConnected ? (
+                            <Button
+                                size="lg"
+                                className="group min-w-[200px]"
+                                onClick={handleMint}
+                                disabled={isPending || isConfirming || currentSupply >= maxSupply}
+                            >
+                                {isPending ? (
+                                    <>Confirm in Wallet <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
+                                ) : isConfirming ? (
+                                    <>Minting... <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
+                                ) : currentSupply >= maxSupply ? (
+                                    "Sold Out"
+                                ) : (
+                                    <>Mint Synapse <Sparkles className="ml-2 w-4 h-4 group-hover:rotate-12 transition-transform" /></>
+                                )}
+                            </Button>
+                        ) : (
+                            <div className="scale-110">
+                                <ConnectButton />
+                            </div>
+                        )}
+
                         <Button variant="outline" size="lg">
                             Read Manifesto
                         </Button>
                     </div>
 
+                    {isConfirmed && (
+                        <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm hero-text animate-in fade-in slide-in-from-bottom-4">
+                            🎉 Mint Successful! Welcome to the Genesis Council.
+                        </div>
+                    )}
+
                     <div className="mt-8 flex items-center justify-center lg:justify-start gap-8 text-sm text-muted hero-text">
                         <div>
-                            <div className="font-bold text-white text-lg">300</div>
+                            <div className="font-bold text-white text-lg">{currentSupply} / {maxSupply}</div>
                             <div>Total Supply</div>
                         </div>
                         <div className="w-px h-8 bg-white/10" />
                         <div>
-                            <div className="font-bold text-white text-lg">1 ETH</div>
+                            <div className="font-bold text-white text-lg">{priceEth} ETH</div>
                             <div>Mint Price</div>
                         </div>
                         <div className="w-px h-8 bg-white/10" />
@@ -136,7 +237,7 @@ const NftPage = () => {
                                 </div>
                                 <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
                                     <div className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-xs font-bold text-white">
-                                        #001
+                                        #{String(currentSupply + 1).padStart(3, '0')}
                                     </div>
                                 </div>
                             </div>
@@ -153,10 +254,13 @@ const NftPage = () => {
 
                                 <div className="space-y-2">
                                     <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                                        <div className="w-[85%] h-full bg-gradient-to-r from-primary to-secondary" />
+                                        <div
+                                            className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000"
+                                            style={{ width: `${progress}%` }}
+                                        />
                                     </div>
                                     <div className="flex justify-between text-xs text-muted">
-                                        <span>Minted: 255/300</span>
+                                        <span>Minted: {currentSupply}/{maxSupply}</span>
                                         <span className="text-primary">Live Now</span>
                                     </div>
                                 </div>

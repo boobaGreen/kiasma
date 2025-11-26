@@ -21,3 +21,28 @@
 - [ ] **Toast Notifications:** Add success/error toasts for all transactions.
 - [ ] **Mobile Responsiveness:** Ensure all pages look good on mobile.
 - [ ] **Loading States:** Improve skeleton loaders and transaction pending states.
+
+## 5. Community Compensation Structure
+- [ ] **Decide Initial Percentages:** Determine % allocation from Angel investor funds for:
+  - Development team
+  - Design & UX/UI contributors
+  - Marketing & community growth
+  - Security auditors
+  - Moderators & support
+  - Governance contributors
+  - **Total community pool %** to allocate
+  
+- [ ] **Post-Launch Distribution:** Define % of protocol profits to distribute:
+  - Performance fees split between:
+    - Angel NFT holders (revenue share)
+    - Active contributors (ongoing work)
+    - Treasury (project growth)
+    - Dev team (core maintenance)
+  - Establish transparent evaluation criteria
+  - Create on-chain distribution mechanism
+
+- [ ] **Angel Investor Terms:**
+  - Define initial funding amount needed
+  - Set Angel NFT supply and benefits
+  - Determine revenue share % for Angel NFT holders
+  - Create vesting schedule if applicable

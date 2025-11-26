@@ -1,6 +1,6 @@
-import { useRef, useState, useEffect } from 'react';
-import { Card, Button, Section } from '../components/ui';
-import { ArrowDownUp, Settings, Activity, RefreshCw, Layers, Cpu, Hash, MoveRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Button, Section } from '../components/ui';
+import { ArrowDownUp, Settings, Activity, RefreshCw, Cpu, MoveRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import TradeChart from '../components/TradeChart';

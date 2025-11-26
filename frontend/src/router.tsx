@@ -3,7 +3,6 @@ import MainLayout from './layouts/MainLayout';
 import LandingPage from './pages/LandingPage';
 import VaultPage from './pages/VaultPage';
 import TradePage from './pages/TradePage';
-import AboutPage from './pages/AboutPage';
 import DashboardPage from './pages/DashboardPage';
 import NftPage from './pages/NftPage';
 import RoadmapPage from './pages/RoadmapPage';
@@ -30,10 +29,6 @@ export const router = createBrowserRouter([
             {
                 path: 'trade',
                 element: <TradePage />,
-            },
-            {
-                path: 'about',
-                element: <AboutPage />,
             },
             {
                 path: 'community',

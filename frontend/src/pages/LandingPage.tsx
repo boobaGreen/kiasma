@@ -144,8 +144,76 @@ const LandingPage = () => {
                 </div>
             </Section>
 
+            {/* Community Opportunities Section */}
+            <Section className="py-32 relative overflow-hidden">
+                {/* Background gradient */}
+                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-secondary/5 to-transparent pointer-events-none" />
+
+                <div className="relative z-10">
+                    <div className="text-center mb-16">
+                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
+                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                            <span className="text-sm font-medium text-primary tracking-wider">PEOPLE-FIRST APPROACH</span>
+                        </div>
+
+                        <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">
+                            Built <span className="text-primary">By the Community</span>,<br />
+                            For the Community
+                        </h2>
+
+                        <p className="text-xl text-muted max-w-3xl mx-auto">
+                            Inspired by <span className="text-white font-bold">Olivetti's philosophy</span>, we believe in democracy,
+                            meritocracy, and transparent compensation. Every contribution—from design to development,
+                            marketing to moderation—is valued and rewarded fairly.
+                        </p>
+                    </div>
+
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
+                        <Card className="group hover:border-primary/30 transition-colors">
+                            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
+                                <Layers className="w-6 h-6 text-primary" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3">Open Opportunities</h3>
+                            <p className="text-muted text-sm leading-relaxed">
+                                Design, development, marketing, security, moderation, governance—we need talented people across all disciplines.
+                                Opportunities are transparent and accessible to everyone.
+                            </p>
+                        </Card>
+
+                        <Card className="group hover:border-secondary/30 transition-colors">
+                            <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
+                                <Zap className="w-6 h-6 text-secondary" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3">Meritocratic Rewards</h3>
+                            <p className="text-muted text-sm leading-relaxed">
+                                Your work is evaluated transparently by the community. Quality contributions earn tokens,
+                                NFTs, and even revenue share through special "Angel Contributor" NFTs.
+                            </p>
+                        </Card>
+
+                        <Card className="group hover:border-accent/30 transition-colors">
+                            <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
+                                <Shield className="w-6 h-6 text-accent" />
+                            </div>
+                            <h3 className="text-xl font-bold mb-3">Democratic Governance</h3>
+                            <p className="text-muted text-sm leading-relaxed">
+                                Every voice matters. Contributors participate in decision-making through transparent,
+                                on-chain governance. Build influence through consistent, quality work.
+                            </p>
+                        </Card>
+                    </div>
+
+                    <div className="text-center">
+                        <Button size="lg" className="group" onClick={() => navigate('/community')}>
+                            Explore Opportunities <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                        </Button>
+                    </div>
+                </div>
+            </Section>
+
             {/* Stats Section */}
             <Section className="py-20 border-y border-white/5 bg-surface/30">
+
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
                     {[
                         { label: 'Total Value Locked', value: totalAssets ? `${parseFloat(formatEther(totalAssets as bigint)).toFixed(2)} ETH` : '$0.00' },

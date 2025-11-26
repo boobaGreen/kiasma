@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Section, Card } from '../components/ui';
-import { Brain, Database, TrendingUp, Lock, Network, Share2 } from 'lucide-react';
+import { Brain, Database, TrendingUp, Lock, Network, Share2, ArrowRight } from 'lucide-react';
+
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -138,7 +139,106 @@ const AboutPage = () => {
                     </div>
                 </div>
             </Section>
+
+            {/* Community Philosophy Section - Olivetti Inspired */}
+            <Section className="reveal-section bg-gradient-to-b from-primary/5 to-transparent border-y border-white/5">
+                <div className="text-center mb-12">
+                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
+                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
+                        <span className="text-sm font-medium text-primary tracking-wider">CORE PHILOSOPHY</span>
+                    </div>
+                    <h2 className="text-4xl font-bold mb-6">
+                        People <span className="text-primary">First</span>
+                    </h2>
+                    <p className="text-muted max-w-3xl mx-auto mb-8">
+                        Inspired by <span className="text-white font-bold">Adriano Olivetti</span>, we believe technology should serve humanity,
+                        not the other way around. Kiasma is built on the principles of <span className="text-primary">democracy</span>,
+                        <span className="text-secondary"> meritocracy</span>, and <span className="text-accent">transparency</span>.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-12">
+                    <Card className="border-primary/20">
+                        <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center">
+                                <Share2 className="w-5 h-5 text-primary" />
+                            </div>
+                            Democratic Governance
+                        </h3>
+                        <p className="text-muted leading-relaxed mb-4">
+                            Every major decision is made collectively by the community. Contributors vote on proposals,
+                            roadmap priorities, and protocol upgrades. Your voice matters, regardless of your investment size.
+                        </p>
+                        <ul className="space-y-2 text-sm text-muted">
+                            <li className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
+                                On-chain voting for transparency
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
+                                Community-driven roadmap
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-primary mt-1.5" />
+                                Open proposal system
+                            </li>
+                        </ul>
+                    </Card>
+
+                    <Card className="border-secondary/20">
+                        <h3 className="text-2xl font-bold mb-4 flex items-center gap-3">
+                            <div className="w-10 h-10 rounded-lg bg-secondary/10 flex items-center justify-center">
+                                <TrendingUp className="w-5 h-5 text-secondary" />
+                            </div>
+                            Meritocratic Rewards
+                        </h3>
+                        <p className="text-muted leading-relaxed mb-4">
+                            Your contributions—not your capital—determine your influence and rewards.
+                            Quality work in design, development, marketing, security, and governance is recognized and compensated fairly.
+                        </p>
+                        <ul className="space-y-2 text-sm text-muted">
+                            <li className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5" />
+                                Transparent evaluation criteria
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5" />
+                                Fair compensation for all roles
+                            </li>
+                            <li className="flex items-start gap-2">
+                                <div className="w-1.5 h-1.5 rounded-full bg-secondary mt-1.5" />
+                                Angel NFTs for exceptional contributors
+                            </li>
+                        </ul>
+                    </Card>
+                </div>
+
+                <div className="text-center">
+                    <p className="text-lg text-muted mb-6 max-w-2xl mx-auto">
+                        <span className="text-white font-bold">We're building more than a protocol</span>—we're creating a
+                        community where talent is discovered, nurtured, and rewarded. Where everyone has the opportunity
+                        to contribute and earn, from the ground up.
+                    </p>
+                    <div className="flex flex-col md:flex-row gap-4 justify-center">
+                        <a
+                            href="/community"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg bg-primary text-background font-bold hover:bg-primary/90 transition-colors"
+                        >
+                            Explore Opportunities <ArrowRight className="ml-2 w-5 h-5" />
+                        </a>
+                        <a
+                            href="https://github.com/boobaGreen/kiasma"
+                            target="_blank"
+                            rel="noopener noreferrer"
+                            className="inline-flex items-center justify-center px-6 py-3 rounded-lg border border-white/10 hover:border-primary/50 transition-colors"
+                        >
+                            Read the Vision
+                        </a>
+                    </div>
+                </div>
+            </Section>
         </div>
+
     );
 };
 

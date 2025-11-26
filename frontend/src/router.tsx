@@ -8,6 +8,7 @@ import DashboardPage from './pages/DashboardPage';
 import NftPage from './pages/NftPage';
 import RoadmapPage from './pages/RoadmapPage';
 import StakingPage from './pages/StakingPage';
+import CommunityPage from './pages/CommunityPage';
 
 export const router = createBrowserRouter([
     {
@@ -35,9 +36,14 @@ export const router = createBrowserRouter([
                 element: <AboutPage />,
             },
             {
+                path: 'community',
+                element: <CommunityPage />,
+            },
+            {
                 path: 'nft',
                 element: <NftPage />,
             },
+
             {
                 path: 'roadmap',
                 element: <RoadmapPage />,

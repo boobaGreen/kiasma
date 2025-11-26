@@ -4,7 +4,7 @@ import { Menu, X, ChevronRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import clsx from 'clsx';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { CustomConnectButton } from '../components/CustomConnectButton';
 
 const Navbar = () => {
     const [isOpen, setIsOpen] = React.useState(false);
@@ -21,14 +21,13 @@ const Navbar = () => {
     }, []);
 
     const links = [
-        { name: 'Dashboard', path: '/dashboard' },
-        { name: 'Vault', path: '/vault' },
-        { name: 'Trade', path: '/trade' },
-        { name: 'About', path: '/about' },
-        { name: 'Community', path: '/community' },
-        { name: 'Roadmap', path: '/roadmap' },
         { name: 'NFT', path: '/nft' },
+        { name: 'Community', path: '/community' },
+        { name: 'Trade', path: '/trade' },
+        { name: 'Vault', path: '/vault' },
         { name: 'Staking', path: '/staking' },
+        { name: 'Dashboard', path: '/dashboard' },
+        { name: 'Roadmap', path: '/roadmap' },
     ];
 
 
@@ -51,7 +50,7 @@ const Navbar = () => {
                 {/* Logo */}
                 <NavLink to="/" className="flex items-center gap-2 group">
                     <div className="w-8 h-8 bg-gradient-to-br from-primary to-secondary rounded-lg rotate-45 group-hover:rotate-90 transition-transform duration-500" />
-                    <span className="text-2xl font-display font-bold tracking-wider text-white">KIASMA</span>
+                    <span className="text-2xl font-display font-bold tracking-wider text-ink">KIASMA</span>
                 </NavLink>
 
                 {/* Desktop Links */}
@@ -75,11 +74,11 @@ const Navbar = () => {
                 {/* Connect Wallet & Mobile Menu */}
                 <div className="flex items-center gap-4">
                     <div className="hidden md:block">
-                        <ConnectButton showBalance={false} chainStatus="icon" accountStatus="address" />
+                        <CustomConnectButton />
                     </div>
 
                     <button
-                        className="md:hidden p-2 text-white"
+                        className="md:hidden p-2 text-ink"
                         onClick={() => setIsOpen(!isOpen)}
                     >
                         {isOpen ? <X /> : <Menu />}
@@ -107,7 +106,7 @@ const Navbar = () => {
                         </NavLink>
                     ))}
                     <div className="mt-4 flex justify-center">
-                        <ConnectButton />
+                        <CustomConnectButton />
                     </div>
                 </div>
             )}
@@ -122,7 +121,7 @@ const Footer = () => {
                 <div className="col-span-1 md:col-span-2">
                     <div className="flex items-center gap-2 mb-4">
                         <div className="w-6 h-6 bg-gradient-to-br from-primary to-secondary rounded-md rotate-45" />
-                        <span className="text-xl font-display font-bold text-white">KIASMA</span>
+                        <span className="text-xl font-display font-bold text-ink">KIASMA</span>
                     </div>
                     <p className="text-muted text-sm max-w-md">
                         The Oracle Convergence Layer. Where Data Converges. Where Value Compounds.
@@ -130,7 +129,7 @@ const Footer = () => {
                 </div>
 
                 <div>
-                    <h4 className="text-white font-bold mb-4">Protocol</h4>
+                    <h4 className="text-ink font-bold mb-4">Protocol</h4>
                     <ul className="space-y-2 text-sm text-muted">
                         <li><a href="#" className="hover:text-primary transition-colors">Documentation</a></li>
                         <li><a href="#" className="hover:text-primary transition-colors">Whitepaper</a></li>
@@ -139,7 +138,7 @@ const Footer = () => {
                 </div>
 
                 <div>
-                    <h4 className="text-white font-bold mb-4">Community</h4>
+                    <h4 className="text-ink font-bold mb-4">Community</h4>
                     <ul className="space-y-2 text-sm text-muted">
                         <li><a href="#" className="hover:text-primary transition-colors">Twitter / X</a></li>
                         <li><a href="#" className="hover:text-primary transition-colors">Discord</a></li>

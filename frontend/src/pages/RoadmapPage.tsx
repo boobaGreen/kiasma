@@ -1,335 +1,242 @@
-import { useRef, useState } from 'react';
+import { useRef } from 'react';
 import { Section, Card } from '../components/ui';
-import { Rocket, Users, Zap, Shield, TrendingUp, Sparkles, CheckCircle2, Circle } from 'lucide-react';
+import { CheckCircle2, Circle, Hammer, Rocket, Search, Settings, ArrowDown } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import clsx from 'clsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const RoadmapPage = () => {
-    const containerRef = useRef(null);
-    const [hoveredPhase, setHoveredPhase] = useState<number | null>(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const lineRef = useRef<HTMLDivElement>(null);
 
     useGSAP(() => {
-        // Hero animation
-        gsap.from('.roadmap-hero', {
-            y: 50,
+        const tl = gsap.timeline();
+
+        // Initial Header Animation
+        tl.from('.header-char', {
+            y: -50,
             opacity: 0,
-            duration: 1,
-            ease: 'power3.out',
+            stagger: 0.1,
+            ease: 'back.out(1.7)',
+            duration: 1
         });
 
-        // Animated timeline line
-        gsap.from('.timeline-line', {
-            scaleY: 0,
-            transformOrigin: 'top',
-            duration: 1.5,
-            ease: 'power2.out',
-            scrollTrigger: {
-                trigger: '.timeline-line',
-                start: 'top 80%',
-            },
-        });
-
-        // Phase cards animation
-        const items = gsap.utils.toArray('.roadmap-item');
-        items.forEach((item: any, index) => {
-            const isEven = index % 2 === 0;
-            gsap.from(item, {
+        // The Conveyor Belt Line Animation
+        // The line grows as you scroll
+        gsap.fromTo(lineRef.current,
+            { height: '0%' },
+            {
+                height: '100%',
+                ease: 'none',
                 scrollTrigger: {
-                    trigger: item,
-                    start: 'top 85%',
+                    trigger: containerRef.current,
+                    start: 'top top',
+                    end: 'bottom bottom',
+                    scrub: 1,
+                }
+            }
+        );
+
+        // Phase Cards Animation
+        const phases = gsap.utils.toArray('.phase-card');
+        phases.forEach((phase: any, i) => {
+            // Card Entrance
+            gsap.from(phase, {
+                scrollTrigger: {
+                    trigger: phase,
+                    start: 'top 80%',
+                    end: 'top 50%',
+                    toggleActions: 'play none none reverse'
                 },
-                x: isEven ? -100 : 100,
+                x: i % 2 === 0 ? -100 : 100,
                 opacity: 0,
                 duration: 1,
-                ease: 'power3.out',
+                ease: 'power3.out'
             });
 
-            // Pulse animation for nodes
-            gsap.to(item.querySelector('.timeline-node'), {
-                scale: 1.2,
-                duration: 1.5,
-                repeat: -1,
-                yoyo: true,
-                ease: 'power1.inOut',
+            // Connector Line Animation
+            gsap.from(phase.querySelector('.connector'), {
+                scrollTrigger: {
+                    trigger: phase,
+                    start: 'top 80%'
+                },
+                scaleX: 0,
+                transformOrigin: i % 2 === 0 ? 'right center' : 'left center',
+                duration: 0.5,
+                delay: 0.2
             });
         });
 
-        // Floating particles animation
-        gsap.to('.floating-particle', {
-            y: -20,
-            duration: 2,
-            stagger: 0.2,
+        // "Construction" Icons Rotation
+        gsap.to('.gear-icon', {
+            rotation: 360,
             repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
+            duration: 10,
+            ease: 'none'
         });
+
     }, { scope: containerRef });
 
     const phases = [
         {
-            title: 'Phase 1: Foundation',
-            subtitle: 'Building the Bedrock',
-            date: 'Q1-Q2 2026',
-            icon: Shield,
-            color: 'from-blue-500/20 to-cyan-500/20',
-            borderColor: 'border-blue-500/30',
-            iconColor: 'text-blue-400',
+            id: "01",
+            title: "THE GARAGE (0-6M)",
+            status: "completed",
+            icon: Search,
+            desc: "Bootstrapped by Founder & Angel Contributors. Zero Initial Capital.",
             items: [
-                { text: 'Smart Contract Audit (Tier-1)', done: false },
-                { text: 'Arbitrum Mainnet Deployment', done: false },
-                { text: 'Genesis NFT Mint (Angel Round)', done: false },
-                { text: 'Community Governance Framework Launch', done: false },
-                { text: 'Initial Liquidity Event ($5M Cap)', done: false },
-                { text: 'First Community Contributor Rewards', done: false },
-            ],
+                "Capital: Founder + Angel Contributors (Work for Equity)",
+                "Workforce: Dev, Marketing, Community (Equity-based)",
+                "Distribution: 50% Founder, 30% Angels, 20% Treasury",
+                "Milestone: Whitepaper & Genesis Community"
+            ]
         },
         {
-            title: 'Phase 2: Expansion',
-            subtitle: 'Growing the Ecosystem',
-            date: 'Q3-Q4 2026',
-            icon: TrendingUp,
-            color: 'from-primary/20 to-secondary/20',
-            borderColor: 'border-primary/30',
-            iconColor: 'text-primary',
+            id: "02",
+            title: "THE FACTORY (6-18M)",
+            status: "in-progress",
+            icon: Hammer,
+            desc: "Expansion phase. External Angels and First Revenue.",
             items: [
-                { text: 'Expand to 10+ Strategy Adapters', done: false },
-                { text: 'First Governance Proposals to Oracle Protocols', done: false },
-                { text: 'Launch Bug Bounty Program', done: false },
-                { text: 'Community Voting on Major Decisions', done: false },
-                { text: 'First Angel NFT Revenue Distribution', done: false },
-                { text: 'Onboard 50+ Active Contributors', done: false },
-                { text: 'Multi-language Support & Global Expansion', done: false },
-            ],
+                "Capital: External Angel Investors (NFT Sales)",
+                "Workforce: Team paid in Tokens/Stablecoins",
+                "Distribution: Founder quota reduces to 35%",
+                "Milestone: Frontend V1 & Staking Vault Deployment"
+            ]
         },
         {
-            title: 'Phase 3: Metamorphosis',
-            subtitle: 'The Oracle Layer',
-            date: '2027+',
+            id: "03",
+            title: "THE NETWORK (18-36M+)",
+            status: "upcoming",
             icon: Rocket,
-            color: 'from-purple-500/20 to-pink-500/20',
-            borderColor: 'border-purple-500/30',
-            iconColor: 'text-purple-400',
+            desc: "Scalability and Sustainability. Revenue-driven growth.",
             items: [
-                { text: 'Kiasma Router Beta (ZK-Proof Integration)', done: false },
-                { text: 'Universal Data Router Mainnet Launch', done: false },
-                { text: 'Activate Buyback & Burn Mechanism', done: false },
-                { text: 'Full DAO Transition (Community-Owned)', done: false },
-                { text: 'Cross-Chain Expansion', done: false },
-                { text: 'Establish Kiasma as Industry Standard', done: false },
-            ],
+                "Capital: Protocol Revenue & Institutional Partners",
+                "Workforce: Sustainable payments from Revenue",
+                "Distribution: Controlled Emission & Staking Rewards",
+                "Milestone: Mainnet Launch & DAO Governance"
+            ]
         },
         {
-            title: 'Phase 4: Convergence',
-            subtitle: 'The Future State',
-            date: '2028+',
-            icon: Sparkles,
-            color: 'from-yellow-500/20 to-orange-500/20',
-            borderColor: 'border-yellow-500/30',
-            iconColor: 'text-yellow-400',
-            items: [
-                { text: 'Become the "1inch of Data"', done: false },
-                { text: 'Integrate with Major DeFi Protocols', done: false },
-                { text: 'Launch Kiasma SDK for Developers', done: false },
-                { text: 'Community-Driven Innovation Lab', done: false },
-                { text: 'Establish Kiasma Foundation', done: false },
-                { text: 'Global Oracle Infrastructure Standard', done: false },
-            ],
-        },
+            id: "04",
+            title: "EXPANSION",
+            status: "upcoming",
+            icon: Settings,
+            desc: "Cross-chain integration and advanced features.",
+            items: ["L2 Scaling Solutions", "Cross-chain Bridge", "Advanced Analytics Suite", "Mobile App Beta"]
+        }
     ];
 
     return (
-        <div ref={containerRef} className="overflow-hidden relative">
-            {/* Floating particles background */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                {[...Array(20)].map((_, i) => (
-                    <div
-                        key={i}
-                        className="floating-particle absolute w-2 h-2 rounded-full bg-primary/20"
-                        style={{
-                            left: `${Math.random() * 100}%`,
-                            top: `${Math.random() * 100}%`,
-                        }}
-                    />
-                ))}
+        <div ref={containerRef} className="min-h-screen bg-background text-ink pt-24 pb-20 relative overflow-hidden">
+            {/* Background Grid */}
+            <div className="absolute inset-0 pointer-events-none opacity-5"
+                style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
             </div>
 
-            {/* Hero Section */}
-            <Section className="text-center pt-32 pb-20 relative">
-                <div className="roadmap-hero">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-                        <Rocket className="w-4 h-4 text-primary animate-pulse" />
-                        <span className="text-sm font-medium text-primary tracking-wider">OUR JOURNEY</span>
-                    </div>
-
-                    <h1 className="text-5xl md:text-7xl font-display font-bold mb-6">
-                        The <span className="text-primary">Roadmap</span>
-                    </h1>
-
-                    <p className="text-xl text-muted max-w-3xl mx-auto mb-4">
-                        From a community-driven financial engine to the universal oracle convergence layer.
-                    </p>
-
-                    <p className="text-muted max-w-2xl mx-auto">
-                        Built transparently, governed democratically, rewarded meritocratically.
-                    </p>
+            <Section className="relative z-10 text-center pt-12 pb-24">
+                <h1 className="text-5xl md:text-7xl font-display font-bold mb-4 flex justify-center gap-2">
+                    {['T', 'H', 'E', '_', 'P', 'L', 'A', 'N'].map((char, i) => (
+                        <span key={i} className="header-char inline-block">{char === '_' ? '\u00A0' : char}</span>
+                    ))}
+                </h1>
+                <p className="text-xl font-mono text-muted max-w-2xl mx-auto">
+                    // SYSTEM_STATUS: ASSEMBLY_IN_PROGRESS
+                    <br />
+                    Constructing the future of decentralized data.
+                </p>
+                <div className="mt-8 animate-bounce">
+                    <ArrowDown className="w-8 h-8 mx-auto text-primary" />
                 </div>
             </Section>
 
-            {/* Timeline Section */}
-            <Section className="py-20">
-                <div className="relative max-w-6xl mx-auto">
-                    {/* Animated vertical line */}
-                    <div className="timeline-line absolute left-8 md:left-1/2 top-0 bottom-0 w-1 bg-gradient-to-b from-primary via-secondary to-purple-500 opacity-30" />
+            <div className="relative max-w-5xl mx-auto px-4 pb-40">
+                {/* Central Conveyor Belt Line */}
+                <div className="absolute left-4 md:left-1/2 top-0 bottom-0 w-1 bg-ink/10 -translate-x-1/2">
+                    <div ref={lineRef} className="w-full bg-primary shadow-[0_0_10px_rgba(239,68,68,0.5)]"></div>
+                </div>
 
-                    <div className="space-y-32">
-                        {phases.map((phase, index) => {
-                            const Icon = phase.icon;
-                            const isEven = index % 2 === 0;
+                {phases.map((phase, index) => (
+                    <div key={index} className={clsx(
+                        "phase-card relative mb-24 md:mb-40 flex flex-col md:flex-row items-center w-full",
+                        index % 2 === 0 ? "md:flex-row-reverse" : ""
+                    )}>
+                        {/* Spacer for the other side */}
+                        <div className="flex-1 hidden md:block"></div>
 
-                            return (
-                                <div
-                                    key={index}
-                                    className={`roadmap-item relative flex flex-col md:flex-row gap-8 ${isEven ? 'md:flex-row-reverse' : ''
-                                        }`}
-                                    onMouseEnter={() => setHoveredPhase(index)}
-                                    onMouseLeave={() => setHoveredPhase(null)}
-                                >
-                                    {/* Timeline Node */}
-                                    <div className="timeline-node absolute left-8 md:left-1/2 -translate-x-1/2 w-6 h-6 rounded-full bg-background border-4 border-primary z-20 shadow-[0_0_20px_rgba(0,255,157,0.6)]">
-                                        <div className="absolute inset-0 rounded-full bg-primary/50 animate-ping" />
-                                    </div>
+                        {/* Central Node */}
+                        <div className="absolute left-4 md:left-1/2 -translate-x-1/2 w-12 h-12 bg-background border-4 border-ink rounded-full flex items-center justify-center z-10 shadow-[4px_4px_0_#1a1a1a]">
+                            {phase.status === 'completed' ? (
+                                <CheckCircle2 className="w-6 h-6 text-green-600" />
+                            ) : phase.status === 'in-progress' ? (
+                                <Settings className="gear-icon w-6 h-6 text-primary" />
+                            ) : (
+                                <Circle className="w-6 h-6 text-muted" />
+                            )}
+                        </div>
 
-                                    {/* Content */}
-                                    <div className="ml-20 md:ml-0 md:w-1/2 px-4">
-                                        <Card
-                                            className={`relative overflow-hidden group transition-all duration-500 ${hoveredPhase === index ? 'scale-105 shadow-2xl' : ''
-                                                } ${phase.borderColor}`}
-                                        >
-                                            {/* Background gradient */}
-                                            <div
-                                                className={`absolute inset-0 bg-gradient-to-br ${phase.color} opacity-0 group-hover:opacity-100 transition-opacity duration-500 blur-xl`}
-                                            />
+                        {/* Content Card */}
+                        <div className={clsx(
+                            "flex-1 w-full pl-12 md:pl-0",
+                            index % 2 === 0 ? "md:pr-16" : "md:pl-16"
+                        )}>
+                            <div className="connector absolute top-6 h-1 bg-ink w-8 md:w-16 hidden md:block"
+                                style={{
+                                    [index % 2 === 0 ? 'right' : 'left']: '50%',
+                                    transform: 'translateY(-50%)'
+                                }}
+                            ></div>
 
-                                            {/* Icon background */}
-                                            <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                                                <Icon className="w-32 h-32" />
-                                            </div>
-
-                                            <div className="relative z-10">
-                                                {/* Header */}
-                                                <div className="flex items-start gap-4 mb-6">
-                                                    <div className={`w-14 h-14 rounded-xl bg-gradient-to-br ${phase.color} flex items-center justify-center border ${phase.borderColor} group-hover:scale-110 transition-transform`}>
-                                                        <Icon className={`w-7 h-7 ${phase.iconColor}`} />
-                                                    </div>
-                                                    <div className="flex-1">
-                                                        <div className="text-xs font-bold text-primary mb-1 tracking-widest uppercase">
-                                                            {phase.date}
-                                                        </div>
-                                                        <h3 className="text-2xl md:text-3xl font-bold mb-1">
-                                                            {phase.title}
-                                                        </h3>
-                                                        <p className="text-sm text-muted">{phase.subtitle}</p>
-                                                    </div>
-                                                </div>
-
-                                                {/* Items */}
-                                                <ul className="space-y-3">
-                                                    {phase.items.map((item, i) => (
-                                                        <li
-                                                            key={i}
-                                                            className="flex items-start gap-3 text-muted text-sm group/item hover:text-white transition-colors"
-                                                        >
-                                                            {item.done ? (
-                                                                <CheckCircle2 className="w-4 h-4 mt-0.5 text-primary flex-shrink-0" />
-                                                            ) : (
-                                                                <Circle className="w-4 h-4 mt-0.5 text-primary/50 flex-shrink-0 group-hover/item:text-primary transition-colors" />
-                                                            )}
-                                                            <span className="leading-relaxed">{item.text}</span>
-                                                        </li>
-                                                    ))}
-                                                </ul>
-
-                                                {/* Progress indicator */}
-                                                <div className="mt-6 pt-6 border-t border-white/5">
-                                                    <div className="flex items-center justify-between text-xs mb-2">
-                                                        <span className="text-muted">Progress</span>
-                                                        <span className="font-bold text-primary">
-                                                            {phase.items.filter((i) => i.done).length} /{' '}
-                                                            {phase.items.length}
-                                                        </span>
-                                                    </div>
-                                                    <div className="h-2 bg-white/5 rounded-full overflow-hidden">
-                                                        <div
-                                                            className={`h-full bg-gradient-to-r ${phase.color} transition-all duration-500`}
-                                                            style={{
-                                                                width: `${(phase.items.filter((i) => i.done).length /
-                                                                        phase.items.length) *
-                                                                    100
-                                                                    }%`,
-                                                            }}
-                                                        />
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </Card>
-                                    </div>
-
-                                    {/* Empty side for layout balance */}
-                                    <div className="hidden md:block md:w-1/2" />
+                            <Card className={clsx(
+                                "relative p-8 border-2 border-ink bg-surface shadow-[8px_8px_0_#1a1a1a] hover:translate-y-[-4px] transition-transform duration-300",
+                                phase.status === 'in-progress' ? "border-primary" : ""
+                            )}>
+                                <div className="absolute -top-4 -right-4 bg-ink text-white px-3 py-1 font-mono text-xs font-bold shadow-sm">
+                                    PHASE_{phase.id}
                                 </div>
-                            );
-                        })}
+
+                                <div className="flex items-center gap-4 mb-4">
+                                    <div className={clsx(
+                                        "w-12 h-12 rounded-full border-2 border-ink flex items-center justify-center",
+                                        phase.status === 'in-progress' ? "bg-primary text-ink" : "bg-ink/5 text-ink"
+                                    )}>
+                                        <phase.icon className="w-6 h-6" />
+                                    </div>
+                                    <div>
+                                        <h3 className="text-2xl font-display font-bold">{phase.title}</h3>
+                                        <span className={clsx(
+                                            "text-xs font-mono font-bold uppercase px-2 py-0.5 border border-ink/20",
+                                            phase.status === 'completed' ? "bg-green-100 text-green-700" :
+                                                phase.status === 'in-progress' ? "bg-orange-100 text-orange-700" :
+                                                    "bg-gray-100 text-gray-500"
+                                        )}>
+                                            {phase.status}
+                                        </span>
+                                    </div>
+                                </div>
+
+                                <p className="font-mono text-sm text-muted mb-6 border-b border-ink/10 pb-4">
+                                    {phase.desc}
+                                </p>
+
+                                <ul className="space-y-2">
+                                    {phase.items.map((item, i) => (
+                                        <li key={i} className="flex items-start gap-2 font-mono text-sm">
+                                            <span className="text-primary mt-1">&gt;</span>
+                                            <span className={phase.status === 'completed' ? "line-through opacity-50" : ""}>
+                                                {item}
+                                            </span>
+                                        </li>
+                                    ))}
+                                </ul>
+                            </Card>
+                        </div>
                     </div>
-                </div>
-            </Section>
-
-            {/* Community Focus Section */}
-            <Section className="py-20 bg-gradient-to-b from-primary/5 to-transparent border-y border-white/5">
-                <div className="text-center mb-12">
-                    <h2 className="text-4xl font-bold mb-4">
-                        Built <span className="text-primary">Together</span>
-                    </h2>
-                    <p className="text-muted max-w-2xl mx-auto">
-                        Every phase is shaped by our community. Contributors are rewarded transparently,
-                        decisions are made democratically, and success is shared meritocratically.
-                    </p>
-                </div>
-
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-                    <Card className="text-center group hover:border-primary/30 transition-colors">
-                        <div className="w-16 h-16 rounded-full bg-primary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                            <Users className="w-8 h-8 text-primary" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Community-Driven</h3>
-                        <p className="text-sm text-muted">
-                            Every milestone includes community governance, contributor rewards, and transparent decision-making
-                        </p>
-                    </Card>
-
-                    <Card className="text-center group hover:border-secondary/30 transition-colors">
-                        <div className="w-16 h-16 rounded-full bg-secondary/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-secondary/20 transition-colors">
-                            <Zap className="w-8 h-8 text-secondary" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Meritocratic Rewards</h3>
-                        <p className="text-sm text-muted">
-                            Quality contributions earn tokens, NFTs, and revenue share. Excellence is recognized and rewarded
-                        </p>
-                    </Card>
-
-                    <Card className="text-center group hover:border-accent/30 transition-colors">
-                        <div className="w-16 h-16 rounded-full bg-accent/10 flex items-center justify-center mx-auto mb-4 group-hover:bg-accent/20 transition-colors">
-                            <Shield className="w-8 h-8 text-accent" />
-                        </div>
-                        <h3 className="text-xl font-bold mb-2">Transparent Progress</h3>
-                        <p className="text-sm text-muted">
-                            All development, funding, and rewards are tracked on-chain. No hidden agendas, pure transparency
-                        </p>
-                    </Card>
-                </div>
-            </Section>
+                ))}
+            </div>
         </div>
     );
 };

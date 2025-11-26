@@ -1,292 +1,271 @@
-import { useRef } from 'react';
-import { Section, Card, Button } from '../components/ui';
-
-import { Users, Briefcase, Heart, TrendingUp, Code, Palette, Shield, MessageSquare, Vote, ArrowRight } from 'lucide-react';
+import { useRef, useState } from 'react';
+import { Section, Button, Card } from '../components/ui';
+import { Users, Vote, Star, Award, ArrowUpRight, Shield, Coins } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import clsx from 'clsx';
 
 gsap.registerPlugin(ScrollTrigger);
 
 const CommunityPage = () => {
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const [hoveredContributor, setHoveredContributor] = useState<number | null>(null);
 
-
-    useGSAP(() => {
-        const sections = gsap.utils.toArray('.reveal-section');
-        sections.forEach((section: any) => {
-            gsap.from(section, {
-                scrollTrigger: {
-                    trigger: section,
-                    start: 'top 80%',
-                },
-                y: 50,
-                opacity: 0,
-                duration: 1,
-                ease: 'power3.out',
-            });
-        });
-
-        const cards = gsap.utils.toArray('.opportunity-card');
-        cards.forEach((card: any) => {
-            gsap.from(card, {
-                scrollTrigger: {
-                    trigger: card,
-                    start: 'top 85%',
-                },
-                y: 30,
-                opacity: 0,
-                duration: 0.8,
-                ease: 'power3.out',
-            });
-        });
-    }, { scope: containerRef });
-
-    const opportunities = [
-        {
-            icon: Palette,
-            title: 'Design & Creative',
-            description: 'UI/UX design, graphic design, branding, NFT art, visual storytelling',
-            color: 'from-purple-500/20 to-pink-500/20',
-            borderColor: 'border-purple-500/20',
-            iconColor: 'text-purple-400'
-        },
-        {
-            icon: Code,
-            title: 'Development',
-            description: 'Smart contracts, frontend development, tooling, integrations, testing',
-            color: 'from-primary/20 to-secondary/20',
-            borderColor: 'border-primary/20',
-            iconColor: 'text-primary'
-        },
-        {
-            icon: Briefcase,
-            title: 'Marketing & Growth',
-            description: 'Content creation, social media, community building, partnerships, storytelling',
-            color: 'from-blue-500/20 to-cyan-500/20',
-            borderColor: 'border-blue-500/20',
-            iconColor: 'text-blue-400'
-        },
-        {
-            icon: Shield,
-            title: 'Security & Auditing',
-            description: 'Smart contract auditing, security research, bug bounties, risk assessment',
-            color: 'from-red-500/20 to-orange-500/20',
-            borderColor: 'border-red-500/20',
-            iconColor: 'text-red-400'
-        },
-        {
-            icon: MessageSquare,
-            title: 'Moderation & Support',
-            description: 'Discord/forum moderation, user support, documentation, community management',
-            color: 'from-green-500/20 to-emerald-500/20',
-            borderColor: 'border-green-500/20',
-            iconColor: 'text-green-400'
-        },
-        {
-            icon: Vote,
-            title: 'Governance & Strategy',
-            description: 'Proposal creation, voting, strategic planning, DAO operations, organization',
-            color: 'from-yellow-500/20 to-amber-500/20',
-            borderColor: 'border-yellow-500/20',
-            iconColor: 'text-yellow-400'
-        }
+    // Mock Data for Contributors (Updated roles)
+    const contributors = [
+        { id: 1, name: "0xAlpha", role: "Liquidity Provider", contributions: "GENESIS", avatarColor: "bg-primary" },
+        { id: 2, name: "BetaBuilder", role: "Governance", contributions: "VOTER", avatarColor: "bg-secondary" },
+        { id: 3, name: "GammaRay", role: "Strategist", contributions: "PROPOSER", avatarColor: "bg-ink" },
+        { id: 4, name: "DeltaForce", role: "Security", contributions: "AUDITOR", avatarColor: "bg-accent" },
+        { id: 5, name: "EpsilonNode", role: "Operator", contributions: "NODE", avatarColor: "bg-primary" },
+        { id: 6, name: "ZetaMod", role: "Community", contributions: "MOD", avatarColor: "bg-secondary" },
+        { id: 7, name: "EtaDev", role: "Core Dev", contributions: "CODE", avatarColor: "bg-ink" },
+        { id: 8, name: "ThetaData", role: "Analyst", contributions: "DATA", avatarColor: "bg-accent" },
     ];
 
+    // Mock Data for Proposals (Aligned with Whitepaper)
+    const proposals = [
+        { id: "KIP-1", title: "Phase 2: Activate Lobbying", status: "Active", votes: "85%" },
+        { id: "KIP-2", title: "Add Pyth Network Adapter", status: "Pending", votes: "40%" },
+        { id: "KIP-3", title: "Treasury Rebalancing Q3", status: "Passed", votes: "92%" },
+    ];
+
+    useGSAP(() => {
+        const tl = gsap.timeline();
+
+        // Hero Entrance
+        tl.from('.hero-text', {
+            y: 50,
+            opacity: 0,
+            duration: 1,
+            stagger: 0.2,
+            ease: 'power3.out'
+        });
+
+        // Mosaic Animation
+        gsap.utils.toArray('.mosaic-item').forEach((item: any, i) => {
+            gsap.from(item, {
+                scrollTrigger: {
+                    trigger: item,
+                    start: 'top 90%',
+                    toggleActions: 'play none none reverse'
+                },
+                scale: 0,
+                rotation: i % 2 === 0 ? 15 : -15,
+                opacity: 0,
+                duration: 0.8,
+                ease: 'back.out(1.7)'
+            });
+        });
+
+        // Infographic Animation (Bar Chart)
+        gsap.from('.chart-bar', {
+            scrollTrigger: {
+                trigger: '.chart-container',
+                start: 'top 80%'
+            },
+            height: 0,
+            duration: 1.5,
+            stagger: 0.1,
+            ease: 'power4.out'
+        });
+
+    }, { scope: containerRef });
+
     return (
-        <div ref={containerRef} className="overflow-hidden">
-            {/* Hero Section */}
-            <Section className="text-center pt-32 pb-20">
-                <div className="reveal-section">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8">
-                        <Heart className="w-4 h-4 text-primary animate-pulse" />
-                        <span className="text-sm font-medium text-primary tracking-wider">PEOPLE-FIRST PHILOSOPHY</span>
-                    </div>
+        <div ref={containerRef} className="min-h-screen bg-background text-ink pt-24 pb-20 relative overflow-hidden">
+            {/* Background Grid */}
+            <div className="absolute inset-0 pointer-events-none opacity-5"
+                style={{ backgroundImage: 'linear-gradient(#000 1px, transparent 1px), linear-gradient(90deg, #000 1px, transparent 1px)', backgroundSize: '20px 20px' }}>
+            </div>
 
-                    <h1 className="text-5xl md:text-7xl font-display font-bold mb-6">
-                        Build <span className="text-primary">With Us</span>
-                    </h1>
-
-                    <p className="text-xl text-muted max-w-3xl mx-auto mb-8">
-                        Inspired by <span className="text-white font-bold">Adriano Olivetti's</span> philosophy:
-                        we believe in putting people first, transparent meritocracy, and democratic governance.
-                    </p>
-
-                    <p className="text-lg text-muted max-w-2xl mx-auto">
-                        Every contribution matters. Every voice is heard. Every contributor is fairly compensated.
-                    </p>
+            {/* Hero: The Collective */}
+            <Section className="relative z-10 pt-12 pb-24 text-center">
+                <div className="inline-block border-2 border-ink px-4 py-1 mb-6 bg-surface shadow-[4px_4px_0_#1a1a1a] hero-text">
+                    <span className="font-mono text-sm font-bold uppercase tracking-widest">Community Governance</span>
+                    <h2 className="text-3xl font-display font-bold">ACTIVE MEMBERS</h2>
+                    <div className="font-mono text-sm text-muted">ROLE: GENESIS_CONTRIBUTOR</div>
                 </div>
-            </Section>
 
-            {/* Philosophy Section */}
-            <Section className="reveal-section bg-surface/30 border-y border-white/5">
-                <div className="max-w-4xl mx-auto">
-                    <h2 className="text-3xl font-bold mb-8 text-center">Our Philosophy</h2>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Card className="text-center">
-                            <Users className="w-10 h-10 text-primary mx-auto mb-4" />
-                            <h3 className="text-xl font-bold mb-2">Democracy</h3>
-                            <p className="text-sm text-muted">
-                                Decisions are made collectively. Every contributor has a voice in shaping the project's future.
-                            </p>
-                        </Card>
-
-                        <Card className="text-center">
-                            <TrendingUp className="w-10 h-10 text-secondary mx-auto mb-4" />
-                            <h3 className="text-xl font-bold mb-2">Meritocracy</h3>
-                            <p className="text-sm text-muted">
-                                Your impact determines your influence. Quality work is recognized and rewarded transparently.
-                            </p>
-                        </Card>
-
-                        <Card className="text-center">
-                            <Heart className="w-10 h-10 text-accent mx-auto mb-4" />
-                            <h3 className="text-xl font-bold mb-2">Transparency</h3>
-                            <p className="text-sm text-muted">
-                                All contributions, evaluations, and rewards are visible on-chain. No hidden agendas.
-                            </p>
-                        </Card>
-                    </div>
-                </div>
-            </Section>
-
-            {/* Opportunities Section */}
-            <Section className="reveal-section">
-                <h2 className="text-4xl font-bold mb-4 text-center">Contribution Opportunities</h2>
-                <p className="text-muted text-center mb-12 max-w-2xl mx-auto">
-                    We need talented people across all disciplines. Whether you're a designer, developer, marketer,
-                    or community builder—there's a place for you in Kiasma.
-                </p>
-
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                    {opportunities.map((opp, index) => {
-                        const Icon = opp.icon;
-                        return (
-                            <Card key={index} className={`opportunity-card group hover:border-opacity-50 ${opp.borderColor} relative overflow-hidden`}>
-                                <div className={`absolute inset-0 bg-gradient-to-br ${opp.color} blur-[60px] opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-
-                                <div className="relative z-10">
-                                    <div className="w-12 h-12 rounded-lg bg-white/5 flex items-center justify-center mb-4 group-hover:bg-white/10 transition-colors">
-                                        <Icon className={`w-6 h-6 ${opp.iconColor}`} />
-                                    </div>
-
-                                    <h3 className="text-xl font-bold mb-3">{opp.title}</h3>
-                                    <p className="text-sm text-muted leading-relaxed">{opp.description}</p>
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+                    {contributors.map((contributor, i) => (
+                        <div
+                            key={contributor.id}
+                            className="mosaic-item relative aspect-square group cursor-pointer"
+                            onMouseEnter={() => setHoveredContributor(contributor.id)}
+                            onMouseLeave={() => setHoveredContributor(null)}
+                        >
+                            <div className={clsx(
+                                "absolute inset-0 border-2 border-ink transition-all duration-300",
+                                contributor.avatarColor,
+                                hoveredContributor === contributor.id ? "translate-x-[-4px] translate-y-[-4px] shadow-[8px_8px_0_#1a1a1a]" : ""
+                            )}>
+                                {/* Abstract Avatar Visual */}
+                                <div className="absolute inset-0 flex items-center justify-center opacity-20">
+                                    {i % 3 === 0 ? <Users className="w-16 h-16" /> :
+                                        i % 3 === 1 ? <Shield className="w-16 h-16" /> :
+                                            <Coins className="w-16 h-16" />}
                                 </div>
-                            </Card>
-                        );
-                    })}
+
+                                {/* Info Overlay */}
+                                <div className="absolute inset-0 p-4 flex flex-col justify-between bg-surface/90 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
+                                    <div className="text-right">
+                                        <ArrowUpRight className="w-6 h-6 ml-auto" />
+                                    </div>
+                                    <div>
+                                        <div className="font-bold font-display text-xl">{contributor.name}</div>
+                                        <div className="font-mono text-xs text-muted uppercase">{contributor.role}</div>
+                                        <div className="mt-2 font-mono text-sm font-bold text-primary">
+                                            {contributor.contributions}
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    ))}
                 </div>
             </Section>
 
-            {/* How It Works Section */}
-            <Section className="reveal-section bg-surface/30 border-y border-white/5">
-                <div className="max-w-4xl mx-auto">
-                    <h2 className="text-4xl font-bold mb-12 text-center">How It Works</h2>
+            {/* The Economic Engine */}
+            <Section className="pb-32">
+                <div className="mb-16">
+                    <h2 className="text-4xl font-display font-bold mb-4">THE ECONOMIC ENGINE</h2>
+                    <p className="font-mono text-muted max-w-2xl">
+                        A transparent, meritocratic distribution model designed for long-term alignment.
+                        We pay with what we have: Equity (NFTs) for early believers, Revenue for the long game.
+                    </p>
+                </div>
 
-                    <div className="space-y-8">
-                        <div className="flex gap-6 items-start">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
-                                <span className="text-xl font-bold text-primary">1</span>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-16">
+                    {/* Chart 1: Token Distribution (50/30/20) */}
+                    <div className="chart-container border-2 border-ink p-8 bg-surface shadow-[8px_8px_0_#1a1a1a]">
+                        <h3 className="text-xl font-display font-bold mb-8 flex items-center gap-2">
+                            <Coins className="w-5 h-5 text-primary" />
+                            INITIAL_TOKEN_DISTRIBUTION
+                        </h3>
+
+                        <div className="relative h-64 flex items-end gap-8 px-4 border-b border-ink/20">
+                            {/* Founder */}
+                            <div className="flex-1 flex flex-col justify-end group relative">
+                                <div className="w-full bg-primary transition-all duration-500 hover:opacity-90 relative" style={{ height: '50%' }}>
+                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 font-mono font-bold">50%</div>
+                                </div>
+                                <div className="mt-4 text-center font-mono text-xs font-bold uppercase">Founder</div>
+                                <div className="text-center font-mono text-[10px] text-muted">(Vesting)</div>
                             </div>
-                            <div>
-                                <h3 className="text-xl font-bold mb-2">Join the Community</h3>
-                                <p className="text-muted">
-                                    Connect with us on Discord or GitHub. Introduce yourself and explore current opportunities.
-                                </p>
+
+                            {/* Angel Contributors */}
+                            <div className="flex-1 flex flex-col justify-end group relative">
+                                <div className="w-full bg-secondary transition-all duration-500 hover:opacity-90 relative" style={{ height: '30%' }}>
+                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 font-mono font-bold">30%</div>
+                                </div>
+                                <div className="mt-4 text-center font-mono text-xs font-bold uppercase">Angels</div>
+                                <div className="text-center font-mono text-[10px] text-muted">(NFT Equity)</div>
+                            </div>
+
+                            {/* Treasury */}
+                            <div className="flex-1 flex flex-col justify-end group relative">
+                                <div className="w-full bg-ink transition-all duration-500 hover:opacity-90 relative" style={{ height: '20%' }}>
+                                    <div className="absolute -top-8 left-1/2 -translate-x-1/2 font-mono font-bold text-ink">20%</div>
+                                </div>
+                                <div className="mt-4 text-center font-mono text-xs font-bold uppercase">Treasury</div>
+                                <div className="text-center font-mono text-[10px] text-muted">(Growth)</div>
                             </div>
                         </div>
+                    </div>
 
-                        <div className="flex gap-6 items-start">
-                            <div className="w-12 h-12 rounded-full bg-secondary/10 flex items-center justify-center flex-shrink-0 border border-secondary/20">
-                                <span className="text-xl font-bold text-secondary">2</span>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold mb-2">Start Contributing</h3>
-                                <p className="text-muted">
-                                    Pick a task that matches your skills. Submit your work for community review. All contributions are tracked transparently.
+                    {/* Chart 2: Contributor Roles Matrix */}
+                    <div className="border-2 border-ink p-8 bg-surface shadow-[8px_8px_0_#1a1a1a]">
+                        <h3 className="text-xl font-display font-bold mb-8 flex items-center gap-2">
+                            <Users className="w-5 h-5 text-secondary" />
+                            CONTRIBUTOR_ROLES
+                        </h3>
+                        <div className="space-y-6">
+                            {/* Angel Contributor */}
+                            <div className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="font-bold font-display text-lg">ANGEL CONTRIBUTOR</div>
+                                    <div className="bg-primary text-ink text-xs font-bold px-2 py-1">WORK FOR EQUITY</div>
+                                </div>
+                                <p className="text-xs font-mono text-muted mb-2">
+                                    Early devs, marketers, and community builders who work for future value.
                                 </p>
+                                <div className="flex items-center gap-2 text-xs font-mono font-bold">
+                                    <Award className="w-4 h-4" /> REWARD: ANGEL NFT (Governance + Yield)
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex gap-6 items-start">
-                            <div className="w-12 h-12 rounded-full bg-accent/10 flex items-center justify-center flex-shrink-0 border border-accent/20">
-                                <span className="text-xl font-bold text-accent">3</span>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold mb-2">Get Evaluated & Rewarded</h3>
-                                <p className="text-muted">
-                                    Your work is reviewed by the community using transparent criteria. Quality contributions earn you rewards in tokens, NFTs, or revenue share.
+                            {/* Angel Investor */}
+                            <div className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="font-bold font-display text-lg">ANGEL INVESTOR</div>
+                                    <div className="bg-secondary text-ink text-xs font-bold px-2 py-1">CAPITAL FOR EQUITY</div>
+                                </div>
+                                <p className="text-xs font-mono text-muted mb-2">
+                                    External backers who provide early capital (ETH/Stable) to fund operations.
                                 </p>
+                                <div className="flex items-center gap-2 text-xs font-mono font-bold">
+                                    <Star className="w-4 h-4" /> REWARD: ANGEL NFT (Governance + Yield)
+                                </div>
                             </div>
-                        </div>
 
-                        <div className="flex gap-6 items-start">
-                            <div className="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center flex-shrink-0 border border-primary/20">
-                                <span className="text-xl font-bold text-primary">4</span>
-                            </div>
-                            <div>
-                                <h3 className="text-xl font-bold mb-2">Grow Your Influence</h3>
-                                <p className="text-muted">
-                                    Consistent, high-quality contributions increase your governance power. Top contributors can earn special "Angel NFTs" with revenue share benefits.
+                            {/* Core Team (Phase 2+) */}
+                            <div className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors">
+                                <div className="flex justify-between items-center mb-2">
+                                    <div className="font-bold font-display text-lg">CORE TEAM</div>
+                                    <div className="bg-ink text-white text-xs font-bold px-2 py-1">WORK FOR REVENUE</div>
+                                </div>
+                                <p className="text-xs font-mono text-muted mb-2">
+                                    Operational team paid in tokens or stablecoins as revenue scales.
                                 </p>
+                                <div className="flex items-center gap-2 text-xs font-mono font-bold">
+                                    <Coins className="w-4 h-4" /> REWARD: SALARY + TOKENS
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </Section>
 
-            {/* Angel NFT Section */}
-            <Section className="reveal-section">
-                <div className="max-w-4xl mx-auto text-center">
-                    <h2 className="text-4xl font-bold mb-6">Angel Contributor NFTs</h2>
-                    <p className="text-muted mb-8 max-w-2xl mx-auto">
-                        Exceptional contributors who help build Kiasma from the ground up can earn special <span className="text-white font-bold">Angel NFTs</span>.
-                        These NFTs grant permanent revenue share from protocol fees and enhanced governance rights.
-                    </p>
-
-                    <Card className="border-primary/20 relative overflow-hidden">
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-secondary/10 blur-[80px]" />
-
-                        <div className="relative z-10 grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-                            <div>
-                                <div className="text-3xl font-bold text-primary mb-2">% TBD</div>
-                                <div className="text-sm text-muted">Protocol Revenue Share</div>
-                            </div>
-                            <div>
-                                <div className="text-3xl font-bold text-secondary mb-2">Limited</div>
-                                <div className="text-sm text-muted">Supply (Earned Only)</div>
-                            </div>
-                            <div>
-                                <div className="text-3xl font-bold text-accent mb-2">Forever</div>
-                                <div className="text-sm text-muted">Lifetime Benefits</div>
-                            </div>
-                        </div>
-                    </Card>
-
-                    <p className="text-sm text-muted mt-6">
-                        <span className="text-primary">*</span> Revenue share percentage and distribution criteria will be decided democratically by the community.
-                    </p>
+            {/* Governance / Voting */}
+            <Section className="pb-20">
+                <div className="text-center mb-12">
+                    <h2 className="text-4xl font-display font-bold mb-4">ACTIVE PROPOSALS</h2>
+                    <p className="font-mono text-muted">Shape the protocol. Cast your vote.</p>
                 </div>
-            </Section>
 
-            {/* CTA Section */}
-            <Section className="reveal-section text-center">
-                <div className="max-w-3xl mx-auto">
-                    <h2 className="text-4xl font-bold mb-6">Ready to Build the Future?</h2>
-                    <p className="text-muted mb-8">
-                        Join a community that values your work, respects your voice, and rewards your contributions fairly.
-                    </p>
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                    {proposals.map((prop, i) => (
+                        <Card key={i} className="group border-2 border-ink p-6 hover:bg-ink hover:text-white transition-colors duration-300">
+                            <div className="flex justify-between items-start mb-4">
+                                <span className="font-mono text-xs font-bold border border-current px-2 py-1">
+                                    {prop.id}
+                                </span>
+                                <span className={clsx(
+                                    "text-xs font-bold uppercase px-2 py-1",
+                                    prop.status === 'Active' ? "bg-green-500 text-white" : "bg-gray-500 text-white"
+                                )}>
+                                    {prop.status}
+                                </span>
+                            </div>
+                            <h3 className="text-xl font-bold font-display mb-4 group-hover:text-white">{prop.title}</h3>
 
-                    <div className="flex flex-col md:flex-row gap-4 justify-center">
-                        <Button size="lg" className="group" onClick={() => window.open('https://discord.gg/kiasma', '_blank')}>
-                            Join Discord <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                        <Button variant="outline" size="lg" onClick={() => window.open('https://github.com/boobaGreen/kiasma', '_blank')}>
-                            View on GitHub
-                        </Button>
-                    </div>
+                            <div className="mb-6">
+                                <div className="flex justify-between text-xs font-mono mb-1 opacity-70">
+                                    <span>Approval</span>
+                                    <span>{prop.votes}</span>
+                                </div>
+                                <div className="h-2 w-full bg-gray-200 rounded-full overflow-hidden">
+                                    <div className="h-full bg-primary" style={{ width: prop.votes }}></div>
+                                </div>
+                            </div>
+
+                            <Button className="w-full border-2 border-current bg-transparent text-current hover:bg-white hover:text-black hover:border-white transition-all">
+                                <Vote className="w-4 h-4 mr-2" /> VOTE NOW
+                            </Button>
+                        </Card>
+                    ))}
                 </div>
             </Section>
         </div>

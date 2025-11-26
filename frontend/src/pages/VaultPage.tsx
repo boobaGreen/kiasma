@@ -1,12 +1,13 @@
 import { useRef, useState, useEffect } from 'react';
-import { Section, Card, Button } from '../components/ui';
-import { Wallet, ArrowRight, ArrowLeft, Lock, TrendingUp, Shield, Loader2 } from 'lucide-react';
+import { Section, Button } from '../components/ui';
+import { Lock, Shield, Loader2, Activity, Database, ArrowRight, ArrowLeft } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi';
 import { formatEther, parseEther } from 'viem';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
+import { CustomConnectButton } from '../components/CustomConnectButton';
 import contractAddresses from '../contract-addresses.json';
+import clsx from 'clsx';
 
 // Contract Config
 const VAULT_ADDRESS = contractAddresses.KiasmaVault as `0x${string}`;
@@ -43,14 +44,14 @@ const VAULT_ABI = [
     },
     {
         "inputs": [{ "internalType": "uint256", "name": "assets", "type": "uint256" }],
-        "name": "convertToShares",
+        "name": "convertToAssets",
         "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
         "stateMutability": "view",
         "type": "function"
     },
     {
-        "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }],
-        "name": "convertToAssets",
+        "inputs": [{ "internalType": "uint256", "name": "shares", "type": "uint256" }, { "internalType": "address", "name": "receiver", "type": "address" }],
+        "name": "convertToShares",
         "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
         "stateMutability": "view",
         "type": "function"
@@ -179,16 +180,24 @@ const VaultPage = () => {
 
     // --- Animations ---
     useGSAP(() => {
-        gsap.from('.vault-card', {
-            y: 30,
+        const tl = gsap.timeline();
+
+        tl.from('.vault-header', {
+            y: -20,
             opacity: 0,
             duration: 0.8,
-            stagger: 0.1,
-            ease: 'power2.out',
-        });
+            ease: 'power3.out'
+        })
+            .from('.vault-panel', {
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.2,
+                ease: 'power2.out'
+            }, '-=0.4');
+
     }, { scope: containerRef });
 
-    // --- Render Helpers ---
     // --- Validation ---
     const currentBalance = activeTab === 'deposit' ? (wethBalance?.value ?? 0n) : ((userShares as bigint) ?? 0n);
     const parsedAmount = amount ? parseEther(amount) : 0n;
@@ -199,178 +208,200 @@ const VaultPage = () => {
     const isButtonDisabled = isActionPending || !amount || parseFloat(amount) <= 0 || insufficientBalance;
 
     return (
-        <div ref={containerRef} className="pt-32 pb-20 min-h-screen">
-            <Section>
-                <div className="max-w-4xl mx-auto">
-                    {/* Header */}
-                    <div className="text-center mb-12 vault-card">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6">
-                            <Lock className="w-4 h-4 text-primary" />
-                            <span className="text-sm font-bold text-primary tracking-wider">KIASMA VAULT</span>
+        <div ref={containerRef} className="min-h-screen bg-background text-ink pt-20 pb-20 relative overflow-hidden">
+            {/* Background Grid Texture */}
+            <div className="absolute inset-0 pointer-events-none opacity-30"
+                style={{ backgroundImage: 'linear-gradient(#bfb8a5 1px, transparent 1px), linear-gradient(90deg, #bfb8a5 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+            </div>
+
+            {/* Header Section - The "Machine Label" */}
+            <div className="max-w-7xl mx-auto px-6 mb-12 vault-header relative z-10">
+                <div className="border-b-4 border-ink pb-6 flex flex-col md:flex-row justify-between items-end gap-6 bg-background/80 backdrop-blur-sm p-4 border-t-4 border-x-4">
+                    <div>
+                        <div className="flex items-center gap-2 text-primary font-mono text-sm font-bold tracking-widest uppercase mb-2">
+                            <Database className="w-4 h-4" />
+                            <span>System_Module_01</span>
                         </div>
-                        <h1 className="text-4xl md:text-6xl font-display font-bold mb-6">
-                            Smart <span className="text-primary">Yield</span>
+                        <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tighter text-ink leading-none">
+                            VAULT<span className="text-secondary">.CORE</span>
                         </h1>
-                        <p className="text-xl text-muted max-w-2xl mx-auto">
-                            Auto-compounding yield from a diversified basket of Oracle tokens.
-                            Risk-managed by the Kiasma Protocol.
-                        </p>
+                    </div>
+                    <div className="text-right hidden md:block">
+                        <div className="text-xs font-mono text-muted tracking-widest mb-1">CURRENT_YIELD</div>
+                        <div className="text-4xl font-display font-bold text-primary">12.5%</div>
+                    </div>
+                </div>
+            </div>
+
+            <Section className="!py-0 relative z-10">
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12">
+
+                    {/* LEFT COLUMN: The Control Terminal (Interaction) */}
+                    <div className="lg:col-span-7 vault-panel">
+                        <div className="bg-surface border-2 border-ink p-1 shadow-[12px_12px_0px_0px_rgba(26,26,26,1)] relative">
+                            {/* Decorative Screws */}
+                            <div className="absolute top-2 left-2 w-2 h-2 border border-ink rounded-full flex items-center justify-center"><div className="w-full h-[1px] bg-ink rotate-45"></div></div>
+                            <div className="absolute top-2 right-2 w-2 h-2 border border-ink rounded-full flex items-center justify-center"><div className="w-full h-[1px] bg-ink rotate-45"></div></div>
+                            <div className="absolute bottom-2 left-2 w-2 h-2 border border-ink rounded-full flex items-center justify-center"><div className="w-full h-[1px] bg-ink rotate-45"></div></div>
+                            <div className="absolute bottom-2 right-2 w-2 h-2 border border-ink rounded-full flex items-center justify-center"><div className="w-full h-[1px] bg-ink rotate-45"></div></div>
+
+                            <div className="border border-ink p-6 md:p-10 bg-background">
+                                {/* Tabs as "Physical" Cards */}
+                                <div className="flex gap-2 mb-8 border-b-2 border-ink pb-4">
+                                    <button
+                                        onClick={() => setActiveTab('deposit')}
+                                        className={clsx(
+                                            "flex-1 py-3 px-4 font-mono font-bold text-sm uppercase tracking-wider border-2 transition-all",
+                                            activeTab === 'deposit'
+                                                ? "bg-primary text-white border-primary shadow-[4px_4px_0_#1a1a1a] -translate-y-1"
+                                                : "bg-transparent text-ink border-ink hover:bg-ink/5"
+                                        )}
+                                    >
+                                        Input / Deposit
+                                    </button>
+                                    <button
+                                        onClick={() => setActiveTab('withdraw')}
+                                        className={clsx(
+                                            "flex-1 py-3 px-4 font-mono font-bold text-sm uppercase tracking-wider border-2 transition-all",
+                                            activeTab === 'withdraw'
+                                                ? "bg-secondary text-white border-secondary shadow-[4px_4px_0_#1a1a1a] -translate-y-1"
+                                                : "bg-transparent text-ink border-ink hover:bg-ink/5"
+                                        )}
+                                    >
+                                        Output / Withdraw
+                                    </button>
+                                </div>
+
+                                {/* Interaction Area */}
+                                {!isConnected ? (
+                                    <div className="text-center py-12 border-2 border-dashed border-ink/20 bg-surface/50">
+                                        <Lock className="w-12 h-12 text-muted mx-auto mb-4" />
+                                        <p className="font-mono text-sm text-muted mb-6 uppercase tracking-widest">Access Denied // Authentication Required</p>
+                                        <div className="flex justify-center">
+                                            <CustomConnectButton />
+                                        </div>
+                                    </div>
+                                ) : (
+                                    <div className="space-y-8">
+                                        {/* Balance Display */}
+                                        <div className="flex justify-between items-end font-mono text-xs uppercase tracking-wider text-muted">
+                                            <span>Available Assets</span>
+                                            <span className="text-ink font-bold text-base">
+                                                {activeTab === 'deposit'
+                                                    ? (wethBalance ? parseFloat(wethBalance.formatted).toFixed(4) : '0.00')
+                                                    : (userShares ? parseFloat(formatEther(userShares as bigint)).toFixed(4) : '0.00')
+                                                } {activeTab === 'deposit' ? 'WETH' : 'stKMA'}
+                                            </span>
+                                        </div>
+
+                                        {/* Input Field */}
+                                        <div className="relative group">
+                                            <input
+                                                type="number"
+                                                placeholder="0.00"
+                                                value={amount}
+                                                onChange={(e) => setAmount(e.target.value)}
+                                                className="w-full bg-surface border-b-4 border-ink px-4 py-6 text-4xl font-display font-bold text-ink placeholder:text-ink/20 focus:outline-none focus:border-primary transition-colors"
+                                            />
+                                            <div className="absolute right-0 top-0 h-full flex items-center pr-4 gap-3">
+                                                <button
+                                                    onClick={() => setAmount(activeTab === 'deposit' ? wethBalance?.formatted || '0' : formatEther(userShares as bigint || 0n))}
+                                                    className="font-mono text-xs font-bold text-primary hover:bg-primary hover:text-white px-2 py-1 border border-primary transition-colors uppercase"
+                                                >
+                                                    Max_Val
+                                                </button>
+                                                <span className="font-display font-bold text-xl text-ink/50">{activeTab === 'deposit' ? 'WETH' : 'stKMA'}</span>
+                                            </div>
+                                        </div>
+
+                                        {/* Action Buttons */}
+                                        {activeTab === 'deposit' ? (
+                                            <div className="pt-4">
+                                                {needsApproval ? (
+                                                    <Button className="w-full bg-ink text-white hover:bg-primary border-2 border-transparent" size="lg" onClick={handleApprove} disabled={isActionPending}>
+                                                        {isApproving || isApproveConfirming ? <><Loader2 className="mr-2 animate-spin" /> AUTHORIZING...</> : "AUTHORIZE PROTOCOL"}
+                                                    </Button>
+                                                ) : (
+                                                    <Button className="w-full" size="lg" onClick={handleDeposit} disabled={isButtonDisabled}>
+                                                        {isDepositing || isDepositConfirming ? <><Loader2 className="mr-2 animate-spin" /> PROCESSING...</> : <>INITIATE DEPOSIT <ArrowRight className="ml-2 w-4 h-4" /></>}
+                                                    </Button>
+                                                )}
+                                            </div>
+                                        ) : (
+                                            <div className="pt-4">
+                                                <Button className="w-full bg-secondary text-white hover:bg-ink border-2 border-transparent" size="lg" onClick={handleWithdraw} disabled={isButtonDisabled}>
+                                                    {isRedeeming || isRedeemConfirming ? <><Loader2 className="mr-2 animate-spin" /> PROCESSING...</> : <>INITIATE WITHDRAWAL <ArrowLeft className="ml-2 w-4 h-4" /></>}
+                                                </Button>
+                                            </div>
+                                        )}
+
+                                        {/* Status Messages */}
+                                        {(isApproveConfirmed || isDepositConfirmed || isRedeemConfirmed) && (
+                                            <div className="p-4 bg-primary/10 border-l-4 border-primary text-primary font-mono text-sm">
+                                                /// TRANSACTION_CONFIRMED /// BLOCK_HEIGHT_UPDATED
+                                            </div>
+                                        )}
+                                    </div>
+                                )}
+                            </div>
+                        </div>
                     </div>
 
-                    {/* Stats Grid */}
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12">
-                        <Card className="p-6 bg-surface/50 border-white/5 vault-card">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 rounded-lg bg-primary/10 text-primary">
-                                    <TrendingUp className="w-6 h-6" />
+                    {/* RIGHT COLUMN: The Data Monitor (Stats) */}
+                    <div className="lg:col-span-5 space-y-6 vault-panel">
+                        {/* TVL Card */}
+                        <div className="bg-primary text-white p-8 border-2 border-ink shadow-[8px_8px_0_#595959] relative overflow-hidden group">
+                            <div className="absolute top-0 right-0 p-4 opacity-20 group-hover:opacity-40 transition-opacity">
+                                <Shield className="w-24 h-24" />
+                            </div>
+                            <div className="relative z-10">
+                                <div className="font-mono text-xs text-white/80 tracking-widest uppercase mb-2">Total Value Locked</div>
+                                <div className="text-5xl font-display font-bold mb-1">
+                                    {totalAssets ? parseFloat(formatEther(totalAssets as bigint)).toFixed(2) : '0.00'}
                                 </div>
-                                <span className="text-muted">APY (Est.)</span>
+                                <div className="text-sm font-mono opacity-80">ETH ASSETS</div>
                             </div>
-                            <div className="text-3xl font-bold font-display">12.5%</div>
-                        </Card>
-                        <Card className="p-6 bg-surface/50 border-white/5 vault-card">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 rounded-lg bg-blue-500/10 text-blue-500">
-                                    <Shield className="w-6 h-6" />
+                        </div>
+
+                        {/* User Stats */}
+                        <div className="bg-surface border-2 border-ink p-8 shadow-[8px_8px_0_#bfb8a5]">
+                            <h3 className="font-display font-bold text-xl mb-6 flex items-center gap-2">
+                                <Activity className="w-5 h-5 text-secondary" />
+                                YOUR_POSITION
+                            </h3>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <div className="flex justify-between text-sm font-mono mb-1">
+                                        <span className="text-muted">DEPOSITED</span>
+                                        <span className="font-bold">{userAssets ? parseFloat(formatEther(userAssets as bigint)).toFixed(4) : '0.0000'} ETH</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-background border border-ink/20 rounded-full overflow-hidden">
+                                        <div className="h-full bg-primary w-3/4"></div> {/* Mock progress */}
+                                    </div>
                                 </div>
-                                <span className="text-muted">TVL</span>
-                            </div>
-                            <div className="text-3xl font-bold font-display">
-                                {totalAssets ? parseFloat(formatEther(totalAssets as bigint)).toFixed(2) : '0.00'} ETH
-                            </div>
-                        </Card>
-                        <Card className="p-6 bg-surface/50 border-white/5 vault-card">
-                            <div className="flex items-center gap-4 mb-2">
-                                <div className="p-3 rounded-lg bg-green-500/10 text-green-500">
-                                    <Wallet className="w-6 h-6" />
+
+                                <div>
+                                    <div className="flex justify-between text-sm font-mono mb-1">
+                                        <span className="text-muted">SHARES (stKMA)</span>
+                                        <span className="font-bold">{userShares ? parseFloat(formatEther(userShares as bigint)).toFixed(4) : '0.0000'} ETH</span>
+                                    </div>
+                                    <div className="w-full h-2 bg-background border border-ink/20 rounded-full overflow-hidden">
+                                        <div className="h-full bg-secondary w-1/2"></div> {/* Mock progress */}
+                                    </div>
                                 </div>
-                                <span className="text-muted">Your Position</span>
                             </div>
-                            <div className="text-3xl font-bold font-display">
-                                {userAssets ? parseFloat(formatEther(userAssets as bigint)).toFixed(4) : '0.0000'} ETH
-                            </div>
-                            <div className="text-sm text-muted mt-1">
-                                ({userShares ? parseFloat(formatEther(userShares as bigint)).toFixed(4) : '0.0000'} stKMA)
-                            </div>
-                        </Card>
+                        </div>
+
+                        {/* Info Box */}
+                        <div className="border-2 border-dashed border-ink/30 p-6 font-mono text-xs leading-relaxed text-muted bg-background/50">
+                            <strong className="text-ink block mb-2">/// PROTOCOL_NOTE</strong>
+                            Assets are auto-compounded daily. Withdrawal requests are processed in the next available block.
+                            <br /><br />
+                            Contract: <span className="underline decoration-dotted">{VAULT_ADDRESS.slice(0, 6)}...{VAULT_ADDRESS.slice(-4)}</span>
+                        </div>
                     </div>
 
-                    {/* Interaction Card */}
-                    <Card className="max-w-xl mx-auto overflow-hidden border-primary/20 vault-card">
-                        {/* Tabs */}
-                        <div className="flex border-b border-white/10">
-                            <button
-                                onClick={() => setActiveTab('deposit')}
-                                className={`flex-1 py-4 text-sm font-bold tracking-wider transition-colors ${activeTab === 'deposit' ? 'bg-primary/10 text-primary border-b-2 border-primary' : 'text-muted hover:text-white hover:bg-white/5'}`}
-                            >
-                                DEPOSIT
-                            </button>
-                            <button
-                                onClick={() => setActiveTab('withdraw')}
-                                className={`flex-1 py-4 text-sm font-bold tracking-wider transition-colors ${activeTab === 'withdraw' ? 'bg-primary/10 text-primary border-b-2 border-primary' : 'text-muted hover:text-white hover:bg-white/5'}`}
-                            >
-                                WITHDRAW
-                            </button>
-                        </div>
-
-                        <div className="p-8">
-                            {!isConnected ? (
-                                <div className="text-center py-8">
-                                    <p className="text-muted mb-6">Connect your wallet to interact with the Vault.</p>
-                                    <div className="flex justify-center">
-                                        <ConnectButton />
-                                    </div>
-                                </div>
-                            ) : (
-                                <div className="space-y-6">
-                                    <div className="flex justify-between text-sm text-muted">
-                                        <span>Asset</span>
-                                        <span>
-                                            Balance: {activeTab === 'deposit'
-                                                ? (wethBalance ? parseFloat(wethBalance.formatted).toFixed(4) : '0.00')
-                                                : (userShares ? parseFloat(formatEther(userShares as bigint)).toFixed(4) : '0.00')
-                                            } {activeTab === 'deposit' ? 'WETH' : 'stKMA'}
-                                        </span>
-                                    </div>
-
-                                    <div className="relative">
-                                        <input
-                                            type="number"
-                                            placeholder="0.00"
-                                            value={amount}
-                                            onChange={(e) => setAmount(e.target.value)}
-                                            className="w-full bg-black/20 border border-white/10 rounded-xl px-4 py-4 text-2xl font-bold focus:outline-none focus:border-primary/50 transition-colors"
-                                        />
-                                        <div className="absolute right-4 top-1/2 -translate-y-1/2 flex items-center gap-2">
-                                            <button
-                                                onClick={() => setAmount(activeTab === 'deposit' ? wethBalance?.formatted || '0' : formatEther(userShares as bigint || 0n))}
-                                                className="text-xs font-bold text-primary hover:text-primary/80 px-2 py-1 rounded bg-primary/10"
-                                            >
-                                                MAX
-                                            </button>
-                                            <span className="font-bold text-muted">{activeTab === 'deposit' ? 'WETH' : 'stKMA'}</span>
-                                        </div>
-                                    </div>
-
-                                    {activeTab === 'deposit' ? (
-                                        <div className="space-y-3">
-                                            {needsApproval ? (
-                                                <Button
-                                                    className="w-full"
-                                                    size="lg"
-                                                    onClick={handleApprove}
-                                                    disabled={isActionPending}
-                                                >
-                                                    {isApproving || isApproveConfirming ? (
-                                                        <>Approving <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
-                                                    ) : (
-                                                        <>Approve WETH <Lock className="ml-2 w-4 h-4" /></>
-                                                    )}
-                                                </Button>
-                                            ) : (
-                                                <Button
-                                                    className="w-full"
-                                                    size="lg"
-                                                    onClick={handleDeposit}
-                                                    disabled={isButtonDisabled}
-                                                >
-                                                    {insufficientBalance ? (
-                                                        "Insufficient Balance"
-                                                    ) : isDepositing || isDepositConfirming ? (
-                                                        <>Depositing <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
-                                                    ) : (
-                                                        <>Deposit <ArrowRight className="ml-2 w-4 h-4" /></>
-                                                    )}
-                                                </Button>
-                                            )}
-                                        </div>
-                                    ) : (
-                                        <Button
-                                            className="w-full"
-                                            size="lg"
-                                            onClick={handleWithdraw}
-                                            disabled={isButtonDisabled}
-                                        >
-                                            {insufficientBalance ? (
-                                                "Insufficient Balance"
-                                            ) : isRedeeming || isRedeemConfirming ? (
-                                                <>Withdrawing <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
-                                            ) : (
-                                                <>Withdraw <ArrowLeft className="ml-2 w-4 h-4" /></>
-                                            )}
-                                        </Button>
-                                    )}
-
-                                    {/* Transaction Status Messages */}
-                                    {(isApproveConfirmed || isDepositConfirmed || isRedeemConfirmed) && (
-                                        <div className="p-3 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm text-center animate-in fade-in">
-                                            Transaction Successful!
-                                        </div>
-                                    )}
-                                </div>
-                            )}
-                        </div>
-                    </Card>
                 </div>
             </Section>
         </div>

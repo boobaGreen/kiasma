@@ -1,16 +1,14 @@
-import { useRef, useEffect } from 'react';
-import { Section, Card, Button } from '../components/ui';
-import { Diamond, ShieldCheck, Zap, Crown, Coins, Vote, Sparkles, Loader2 } from 'lucide-react';
+import { useRef, useEffect, useState } from 'react';
+import { Section, Button } from '../components/ui';
+import { Shield, Zap, Lock, Unlock, Fingerprint, FileKey } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt } from 'wagmi';
 import { formatEther } from 'viem';
-import { ConnectButton } from '@rainbow-me/rainbowkit';
-
-// Contract Config
+import { CustomConnectButton } from '../components/CustomConnectButton';
 import contractAddresses from '../contract-addresses.json';
+import clsx from 'clsx';
 
-// Contract Config
 const CONTRACT_ADDRESS = contractAddresses.GenesisSynapse as `0x${string}`;
 const ABI = [
     {
@@ -37,9 +35,9 @@ const ABI = [
 ];
 
 const NftPage = () => {
-    const containerRef = useRef(null);
-    const cardRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { isConnected } = useAccount();
+    const [isHoveringCard, setIsHoveringCard] = useState(false);
 
     // Web3 Hooks
     const { data: totalSupply, refetch: refetchSupply } = useReadContract({
@@ -69,230 +67,208 @@ const NftPage = () => {
         });
     };
 
-    // Refetch supply after successful mint
     useEffect(() => {
         if (isConfirmed) {
             refetchSupply();
+            // Success Animation
+            gsap.fromTo('.access-stamp',
+                { scale: 2, opacity: 0, rotation: -45 },
+                { scale: 1, opacity: 1, rotation: -15, duration: 0.5, ease: 'back.out(1.7)' }
+            );
         }
     }, [isConfirmed, refetchSupply]);
 
-    // Animations
     useGSAP(() => {
         const tl = gsap.timeline();
 
-        tl.from('.hero-text', {
-            y: 50,
-            opacity: 0,
-            duration: 1,
-            stagger: 0.2,
-            ease: 'power3.out',
-        })
-            .from(cardRef.current, {
-                y: 50,
-                opacity: 0,
-                duration: 1.5,
-                ease: 'power3.out',
-            }, '-=0.8');
-
-        gsap.to('.nft-glow', {
-            opacity: 0.6,
-            duration: 2,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut',
-        });
-
-        gsap.from('.benefit-card', {
-            scrollTrigger: {
-                trigger: '.benefits-grid',
-                start: 'top 80%',
-            },
-            y: 30,
+        tl.from('.security-header', {
+            y: -20,
             opacity: 0,
             duration: 0.8,
-            stagger: 0.1,
-            ease: 'power2.out',
+            ease: 'power3.out'
+        })
+            .from('.security-panel', {
+                y: 50,
+                opacity: 0,
+                duration: 0.8,
+                stagger: 0.15,
+                ease: 'power2.out'
+            }, '-=0.4');
+
+        // Scanning Line Animation
+        gsap.to('.scan-line', {
+            top: '100%',
+            duration: 3,
+            repeat: -1,
+            ease: 'linear',
+            yoyo: true
         });
+
     }, { scope: containerRef });
 
-    const benefits = [
-        {
-            icon: <ShieldCheck className="w-8 h-8 text-primary" />,
-            title: "0% Management Fees",
-            description: "Lifetime waiver on all Vault deposits. For a $100k position, this saves $500/year forever.",
-            color: "border-primary/20 bg-primary/5"
-        },
-        {
-            icon: <Coins className="w-8 h-8 text-secondary" />,
-            title: "Revenue Share",
-            description: "The collection receives 20% of all Protocol Performance Fees. The NFT pays you a salary.",
-            color: "border-secondary/20 bg-secondary/5"
-        },
-        {
-            icon: <Vote className="w-8 h-8 text-accent" />,
-            title: "Governance Council",
-            description: "Veto power on critical security upgrades. Exclusive access to the 'Alpha Channel' with devs.",
-            color: "border-accent/20 bg-accent/5"
-        },
-        {
-            icon: <Zap className="w-8 h-8 text-yellow-400" />,
-            title: "Yield Boost",
-            description: "1.2x - 1.5x Multiplier on governance rewards when the Data Router goes live.",
-            color: "border-yellow-400/20 bg-yellow-400/5"
-        }
-    ];
-
-    // Derived State
     const currentSupply = totalSupply ? Number(totalSupply) : 0;
     const maxSupply = 300;
-    const progress = (currentSupply / maxSupply) * 100;
     const priceEth = mintPrice ? formatEther(mintPrice as bigint) : "1.0";
 
     return (
-        <div ref={containerRef} className="overflow-hidden">
-            {/* Hero Section */}
-            <Section className="min-h-[90vh] flex flex-col lg:flex-row items-center justify-center gap-16 pt-32">
-                {/* Text Content */}
-                <div className="flex-1 text-center lg:text-left z-10">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-primary/10 border border-primary/20 mb-6 hero-text">
-                        <Crown className="w-4 h-4 text-primary" />
-                        <span className="text-sm font-bold text-primary tracking-wider">ANGEL ROUND</span>
-                    </div>
+        <div ref={containerRef} className="min-h-screen bg-background text-ink pt-24 pb-20 relative overflow-hidden">
+            {/* Background Grid & Lock Motifs */}
+            <div className="absolute inset-0 pointer-events-none opacity-20"
+                style={{ backgroundImage: 'linear-gradient(#bfb8a5 1px, transparent 1px), linear-gradient(90deg, #bfb8a5 1px, transparent 1px)', backgroundSize: '40px 40px' }}>
+            </div>
+            <div className="absolute inset-0 pointer-events-none opacity-5">
+                {[...Array(6)].map((_, i) => (
+                    <Lock key={i} className="absolute w-24 h-24" style={{ top: `${Math.random() * 80 + 10}%`, left: `${Math.random() * 80 + 10}%`, transform: `rotate(${Math.random() * 360}deg)` }} />
+                ))}
+            </div>
 
-                    <h1 className="text-5xl md:text-7xl font-display font-bold mb-6 hero-text">
-                        Genesis <span className="text-primary">Synapse</span>
+            <Section className="relative z-10">
+                {/* Header */}
+                <div className="mb-12 security-header text-center">
+                    <div className="inline-flex items-center gap-2 text-primary font-mono text-sm font-bold tracking-widest uppercase mb-4 border border-primary px-4 py-1 rounded-full bg-primary/5">
+                        <Shield className="w-4 h-4" />
+                        <span>Security_Level_Alpha</span>
+                    </div>
+                    <h1 className="text-5xl md:text-7xl font-display font-bold tracking-tighter text-ink mb-6">
+                        GENESIS<span className="text-secondary">.ACCESS</span>
                     </h1>
-
-                    <p className="text-xl text-muted mb-8 leading-relaxed max-w-xl mx-auto lg:mx-0 hero-text">
-                        Not just art. A seat at the table. <br />
-                        Fund the protocol launch and secure lifetime utilities that compound with Kiasma's success.
-                    </p>
-
-                    <div className="flex flex-col sm:flex-row gap-4 justify-center lg:justify-start hero-text items-center">
-                        {isConnected ? (
-                            <Button
-                                size="lg"
-                                className="group min-w-[200px]"
-                                onClick={handleMint}
-                                disabled={isPending || isConfirming || currentSupply >= maxSupply}
-                            >
-                                {isPending ? (
-                                    <>Confirm in Wallet <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
-                                ) : isConfirming ? (
-                                    <>Minting... <Loader2 className="ml-2 w-4 h-4 animate-spin" /></>
-                                ) : currentSupply >= maxSupply ? (
-                                    "Sold Out"
-                                ) : (
-                                    <>Mint Synapse <Sparkles className="ml-2 w-4 h-4 group-hover:rotate-12 transition-transform" /></>
-                                )}
-                            </Button>
-                        ) : (
-                            <div className="scale-110">
-                                <ConnectButton />
-                            </div>
-                        )}
-
-                        <Button variant="outline" size="lg">
-                            Read Manifesto
-                        </Button>
-                    </div>
-
-                    {isConfirmed && (
-                        <div className="mt-4 p-4 bg-green-500/10 border border-green-500/20 rounded-lg text-green-400 text-sm hero-text animate-in fade-in slide-in-from-bottom-4">
-                            🎉 Mint Successful! Welcome to the Genesis Council.
-                        </div>
-                    )}
-
-                    <div className="mt-8 flex items-center justify-center lg:justify-start gap-8 text-sm text-muted hero-text">
-                        <div>
-                            <div className="font-bold text-white text-lg">{currentSupply} / {maxSupply}</div>
-                            <div>Total Supply</div>
-                        </div>
-                        <div className="w-px h-8 bg-white/10" />
-                        <div>
-                            <div className="font-bold text-white text-lg">{priceEth} ETH</div>
-                            <div>Mint Price</div>
-                        </div>
-                        <div className="w-px h-8 bg-white/10" />
-                        <div>
-                            <div className="font-bold text-white text-lg">0%</div>
-                            <div>Fees Forever</div>
-                        </div>
-                    </div>
-                </div>
-
-                {/* NFT Preview Card */}
-                <div className="flex-1 flex justify-center perspective-1000 z-10">
-                    <div ref={cardRef} className="relative w-[350px] h-[500px] group preserve-3d hover:rotate-y-12 transition-transform duration-500">
-                        {/* Glow Effect */}
-                        <div className="absolute inset-0 bg-gradient-to-br from-primary to-secondary rounded-2xl blur-[80px] opacity-30 nft-glow -z-10" />
-
-                        <Card className="w-full h-full p-0 overflow-hidden border-primary/30 bg-black/80 backdrop-blur-xl flex flex-col shadow-2xl">
-                            {/* Image Placeholder */}
-                            <div className="h-[65%] bg-gradient-to-br from-surface to-black relative overflow-hidden flex items-center justify-center group-hover:scale-105 transition-transform duration-700">
-                                <div className="absolute inset-0 bg-[radial-gradient(circle_at_center,_var(--tw-gradient-stops))] from-primary/20 via-transparent to-transparent opacity-50" />
-                                <div className="relative z-10 w-32 h-32">
-                                    <div className="absolute inset-0 bg-primary/20 blur-xl rounded-full animate-pulse-slow" />
-                                    <Diamond className="w-full h-full text-primary drop-shadow-[0_0_15px_rgba(0,255,157,0.5)]" />
-                                </div>
-                                <div className="absolute bottom-4 left-4 right-4 flex justify-between items-end">
-                                    <div className="px-3 py-1 rounded-full bg-black/50 backdrop-blur-md border border-white/10 text-xs font-bold text-white">
-                                        #{String(currentSupply + 1).padStart(3, '0')}
-                                    </div>
-                                </div>
-                            </div>
-
-                            {/* Card Content */}
-                            <div className="p-6 flex-1 flex flex-col justify-between bg-surface/50">
-                                <div>
-                                    <div className="flex justify-between items-start mb-2">
-                                        <h3 className="text-2xl font-display font-bold text-white">Synapse Node</h3>
-                                        <span className="px-2 py-1 rounded bg-primary/20 text-primary text-xs font-bold border border-primary/20">FOUNDER</span>
-                                    </div>
-                                    <p className="text-sm text-muted">Kiasma Genesis Collection</p>
-                                </div>
-
-                                <div className="space-y-2">
-                                    <div className="w-full h-1 bg-white/10 rounded-full overflow-hidden">
-                                        <div
-                                            className="h-full bg-gradient-to-r from-primary to-secondary transition-all duration-1000"
-                                            style={{ width: `${progress}%` }}
-                                        />
-                                    </div>
-                                    <div className="flex justify-between text-xs text-muted">
-                                        <span>Minted: {currentSupply}/{maxSupply}</span>
-                                        <span className="text-primary">Live Now</span>
-                                    </div>
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-            </Section>
-
-            {/* Utilities Grid */}
-            <Section className="py-20 benefits-grid">
-                <div className="text-center mb-16">
-                    <h2 className="text-3xl md:text-5xl font-display font-bold mb-6">
-                        Hard-Coded <span className="text-primary">Utility</span>
-                    </h2>
-                    <p className="text-muted max-w-2xl mx-auto">
-                        These are not promises. These are smart contract rights programmed into the NFT.
+                    <p className="max-w-2xl mx-auto font-mono text-muted">
+                        RESTRICTED AREA. Authorized personnel only. Minting a Genesis Synapse NFT grants lifetime clearance to protocol governance and fee waivers.
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    {benefits.map((benefit, index) => (
-                        <Card key={index} className={`benefit-card p-8 border hover:border-opacity-50 transition-colors ${benefit.color}`}>
-                            <div className="mb-6 inline-block p-3 rounded-xl bg-black/20 backdrop-blur-sm border border-white/5">
-                                {benefit.icon}
+                <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+
+                    {/* LEFT COLUMN: NFT Card (Holographic File) */}
+                    <div className="lg:col-span-5 flex justify-center perspective-1000">
+                        <div
+                            className="security-panel relative w-[320px] h-[480px] group preserve-3d transition-transform duration-500"
+                            onMouseEnter={() => setIsHoveringCard(true)}
+                            onMouseLeave={() => setIsHoveringCard(false)}
+                            style={{ transform: isHoveringCard ? 'rotateY(10deg) rotateX(5deg)' : 'rotateY(0deg) rotateX(0deg)' }}
+                        >
+                            {/* Card Container */}
+                            <div className="absolute inset-0 bg-ink text-background border-4 border-ink shadow-[16px_16px_0_#bfb8a5] flex flex-col overflow-hidden">
+                                {/* Header Strip */}
+                                <div className="bg-primary p-4 flex justify-between items-center border-b-4 border-ink">
+                                    <span className="font-mono font-bold text-xs">CONFIDENTIAL</span>
+                                    <Fingerprint className="w-8 h-8 opacity-50" />
+                                </div>
+
+                                {/* Main Visual */}
+                                <div className="flex-1 bg-black relative overflow-hidden flex items-center justify-center">
+                                    <div className="absolute inset-0 opacity-30"
+                                        style={{ backgroundImage: 'radial-gradient(#fff 1px, transparent 1px)', backgroundSize: '10px 10px' }}>
+                                    </div>
+
+                                    {/* Holographic Element */}
+                                    <div className="relative z-10 w-40 h-40 border-2 border-primary rounded-full flex items-center justify-center animate-spin-slow">
+                                        <div className="absolute inset-0 border-2 border-secondary rounded-full scale-75 animate-reverse-spin" />
+                                        <Zap className="w-16 h-16 text-white" />
+                                    </div>
+
+                                    {/* Scanning Line */}
+                                    <div className="scan-line absolute top-0 left-0 right-0 h-1 bg-green-500 shadow-[0_0_10px_#22c55e] opacity-50"></div>
+                                </div>
+
+                                {/* Footer Info */}
+                                <div className="p-6 bg-surface border-t-4 border-ink text-ink">
+                                    <div className="flex justify-between items-end mb-2">
+                                        <div>
+                                            <div className="text-xs font-mono text-muted uppercase">Subject</div>
+                                            <div className="font-display font-bold text-xl">SYNAPSE_NODE</div>
+                                        </div>
+                                        <div className="text-right">
+                                            <div className="text-xs font-mono text-muted uppercase">ID</div>
+                                            <div className="font-mono font-bold">#{String(currentSupply + 1).padStart(4, '0')}</div>
+                                        </div>
+                                    </div>
+                                    <div className="w-full h-2 bg-ink/10 rounded-full overflow-hidden mt-4">
+                                        <div className="h-full bg-primary" style={{ width: `${(currentSupply / maxSupply) * 100}%` }}></div>
+                                    </div>
+                                    <div className="flex justify-between text-xs font-mono mt-1 text-muted">
+                                        <span>MINTED: {currentSupply}/{maxSupply}</span>
+                                        <span>STATUS: ACTIVE</span>
+                                    </div>
+                                </div>
                             </div>
-                            <h3 className="text-2xl font-bold mb-3">{benefit.title}</h3>
-                            <p className="text-muted leading-relaxed">
-                                {benefit.description}
-                            </p>
-                        </Card>
-                    ))}
+
+                            {/* Success Stamp */}
+                            {isConfirmed && (
+                                <div className="access-stamp absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 border-4 border-green-600 text-green-600 px-6 py-2 font-display font-bold text-3xl rotate-[-15deg] bg-white/90 backdrop-blur-sm z-50 whitespace-nowrap">
+                                    ACCESS GRANTED
+                                </div>
+                            )}
+                        </div>
+                    </div>
+
+                    {/* RIGHT COLUMN: Minting Interface */}
+                    <div className="lg:col-span-7 space-y-8">
+                        <div className="security-panel bg-surface border-2 border-ink p-8 shadow-[8px_8px_0_#1a1a1a]">
+                            <h2 className="text-2xl font-display font-bold mb-6 flex items-center gap-3">
+                                <FileKey className="w-6 h-6 text-secondary" />
+                                AUTHORIZATION_PROTOCOL
+                            </h2>
+
+                            <div className="space-y-6 mb-8">
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 bg-primary text-white flex items-center justify-center font-bold border border-ink shrink-0">01</div>
+                                    <div>
+                                        <h3 className="font-bold text-lg">Fee Waiver Clearance</h3>
+                                        <p className="text-sm text-muted font-mono">Permanent 0% fees on all Vault deposits.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 bg-secondary text-white flex items-center justify-center font-bold border border-ink shrink-0">02</div>
+                                    <div>
+                                        <h3 className="font-bold text-lg">Revenue Share Access</h3>
+                                        <p className="text-sm text-muted font-mono">Receive 20% of protocol performance fees.</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 bg-ink text-white flex items-center justify-center font-bold border border-ink shrink-0">03</div>
+                                    <div>
+                                        <h3 className="font-bold text-lg">Governance Rights</h3>
+                                        <p className="text-sm text-muted font-mono">Veto power on critical security upgrades.</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="bg-background border-2 border-ink p-6 mb-8">
+                                <div className="flex justify-between items-center mb-4">
+                                    <span className="font-mono text-sm font-bold">REQUIRED_CONTRIBUTION</span>
+                                    <span className="font-display font-bold text-2xl">{priceEth} ETH</span>
+                                </div>
+                                <div className="h-px bg-ink/20 w-full mb-4"></div>
+                                <div className="flex justify-between items-center text-xs font-mono text-muted">
+                                    <span>NETWORK: SEPOLIA</span>
+                                    <span>GAS: EST. LOW</span>
+                                </div>
+                            </div>
+
+                            {!isConnected ? (
+                                <CustomConnectButton />
+                            ) : (
+                                <Button
+                                    size="lg"
+                                    onClick={handleMint}
+                                    disabled={isPending || isConfirming || currentSupply >= maxSupply}
+                                    className={clsx(
+                                        "w-full py-6 text-lg font-display font-bold border-2 border-ink shadow-[4px_4px_0_#1a1a1a] hover:shadow-none hover:translate-y-1 transition-all flex items-center justify-center gap-3",
+                                        isPending || isConfirming ? "bg-muted text-ink cursor-wait" : "bg-primary text-white"
+                                    )}
+                                >
+                                    {isPending ? 'AWAITING_SIGNATURE...' :
+                                        isConfirming ? 'VERIFYING_CREDENTIALS...' :
+                                            currentSupply >= maxSupply ? 'ACCESS_DENIED (SOLD OUT)' :
+                                                <>
+                                                    <Unlock className="w-5 h-5" />
+                                                    AUTHORIZE_MINT
+                                                </>}
+                                </Button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </Section>
         </div>

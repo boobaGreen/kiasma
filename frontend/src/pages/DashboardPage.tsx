@@ -2,11 +2,12 @@ import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAccount, useReadContract } from 'wagmi';
 import { formatEther } from 'viem';
-import { Section, Card, Button } from '../components/ui';
-import { TrendingUp, Wallet, Shield, ArrowRight, Zap } from 'lucide-react';
+import { Wallet, Shield, ArrowRight, Zap, Database, Activity, TrendingUp } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import contractAddresses from '../contract-addresses.json';
+import clsx from 'clsx';
+import { CustomConnectButton } from '../components/CustomConnectButton';
 
 const VAULT_ADDRESS = contractAddresses.KiasmaVault as `0x${string}`;
 const NFT_ADDRESS = contractAddresses.GenesisSynapse as `0x${string}`;
@@ -47,7 +48,7 @@ const NFT_ABI = [
 
 const DashboardPage = () => {
     const navigate = useNavigate();
-    const containerRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
     const { address, isConnected } = useAccount();
 
     // Fetch vault data
@@ -95,193 +96,284 @@ const DashboardPage = () => {
         : 0;
 
     const hasNFT = nftBalance ? (nftBalance as bigint) > 0n : false;
-
-    // Mock APY - in production this would come from contract or backend
     const mockAPY = 12.5;
 
-    useGSAP(() => {
-        gsap.from('.stat-card', {
-            y: 50,
-            opacity: 0,
-            duration: 0.8,
-            stagger: 0.1,
-            ease: 'power3.out',
+    // Interactive Animation Handlers
+    const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+        const rect = e.currentTarget.getBoundingClientRect();
+        const x = (e.clientX - rect.left) / rect.width - 0.5;
+        const y = (e.clientY - rect.top) / rect.height - 0.5;
+
+        // "Digital Loom" Parallax
+        // Threads move slightly
+        gsap.to('.loom-thread', {
+            x: (i) => x * 20 * (i % 2 === 0 ? 1 : -1),
+            duration: 0.5,
+            ease: 'power1.out'
         });
 
-        gsap.from('.action-btn', {
-            y: 20,
-            opacity: 0,
-            duration: 0.6,
-            stagger: 0.1,
-            delay: 0.4,
-            ease: 'back.out(1.7)',
+        // Modules shift with weight
+        gsap.to('.loom-module', {
+            x: x * 10,
+            y: y * 10,
+            duration: 0.8,
+            ease: 'power2.out'
         });
+    };
+
+    useGSAP(() => {
+        const tl = gsap.timeline();
+
+        // 1. Weave the background (Warp Threads)
+        tl.from('.loom-warp', {
+            scaleY: 0,
+            transformOrigin: 'top',
+            duration: 1,
+            stagger: 0.05,
+            ease: 'power3.inOut'
+        })
+            // 2. Draw the connections (Weft Threads)
+            .from('.loom-weft', {
+                scaleX: 0,
+                transformOrigin: 'left',
+                duration: 0.8,
+                stagger: 0.1,
+                ease: 'power2.inOut'
+            }, '-=0.5')
+            // 3. Modules "Type" themselves in (Staccato)
+            .from('.loom-module', {
+                scale: 0,
+                opacity: 0,
+                duration: 0.4,
+                stagger: 0.1,
+                ease: 'back.out(1.7)' // Pop effect
+            }, '-=0.5')
+            // 4. Data fills in
+            .from('.loom-data', {
+                y: 10,
+                opacity: 0,
+                duration: 0.3,
+                stagger: 0.05,
+                ease: 'steps(3)' // Typewriter rhythm
+            }, '-=0.2');
+
     }, { scope: containerRef });
 
     if (!isConnected) {
         return (
-            <Section className="min-h-[80vh] flex items-center justify-center">
-                <Card className="text-center max-w-md">
-                    <Wallet className="w-16 h-16 text-primary mx-auto mb-6" />
-                    <h2 className="text-3xl font-bold mb-4">Connect Your Wallet</h2>
-                    <p className="text-muted mb-6">
-                        Connect your wallet to view your dashboard and portfolio stats.
+            <div className="min-h-screen bg-background text-ink pt-32 pb-20 relative overflow-hidden flex items-center justify-center">
+                <div className="bg-surface border-2 border-ink p-12 shadow-[16px_16px_0_var(--color-ink)] max-w-md text-center relative z-10">
+                    <div className="w-20 h-20 bg-primary rounded-full flex items-center justify-center mx-auto mb-8 border-4 border-background shadow-[0_0_0_4px_var(--color-primary)]">
+                        <Wallet className="w-10 h-10 text-white" />
+                    </div>
+                    <h2 className="text-3xl font-display font-bold mb-4 tracking-tight">SYSTEM_LOCKED</h2>
+                    <p className="font-mono text-sm text-muted mb-8 leading-relaxed">
+                        The machine requires authorization. Insert your digital key to activate the loom.
                     </p>
-                </Card>
-            </Section>
+                    <div className="flex justify-center">
+                        <CustomConnectButton />
+                    </div>
+                </div>
+            </div>
         );
     }
 
     return (
-        <div ref={containerRef}>
-            <Section className="pt-32 pb-20">
-                <div className="mb-12">
-                    <h1 className="text-5xl md:text-6xl font-display font-bold mb-4">
-                        Your <span className="text-primary">Dashboard</span>
-                    </h1>
-                    <p className="text-xl text-muted">
-                        Track your portfolio performance and manage your investments
+        <div
+            ref={containerRef}
+            className="min-h-screen bg-background text-ink pt-24 pb-20 relative overflow-hidden"
+            onMouseMove={handleMouseMove}
+        >
+            {/* The Digital Loom (Background SVG) */}
+            <div className="absolute inset-0 pointer-events-none z-0 opacity-20">
+                <svg className="w-full h-full" preserveAspectRatio="none">
+                    {/* Vertical Warp Threads */}
+                    {Array.from({ length: 20 }).map((_, i) => (
+                        <rect
+                            key={`warp-${i}`}
+                            x={`${i * 5 + 2.5}%`}
+                            y="0"
+                            width="1"
+                            height="100%"
+                            fill="currentColor"
+                            className="loom-warp"
+                        />
+                    ))}
+                </svg>
+            </div>
+
+            {/* Main Content Layer */}
+            <div className="relative z-10 container mx-auto px-6 h-full flex flex-col justify-center min-h-[80vh]">
+
+                {/* Header Module */}
+                <div className="mb-12 loom-module">
+                    <div className="flex items-baseline gap-4 mb-2">
+                        <div className="w-4 h-4 bg-primary rounded-full animate-pulse"></div>
+                        <h1 className="text-6xl md:text-8xl font-display font-bold tracking-tighter text-ink leading-none">
+                            KIASMA<span className="text-secondary">.OS</span>
+                        </h1>
+                    </div>
+                    <div className="h-1 w-32 bg-ink mb-4 loom-weft"></div>
+                    <p className="font-mono text-sm text-muted tracking-widest loom-data">
+                        OPERATIONAL // UNIT: {address?.slice(0, 8)}
                     </p>
                 </div>
 
-                {/* Global Stats */}
-                <div className="mb-16">
-                    <h2 className="text-2xl font-bold mb-6">Protocol Stats</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                        <Card className="stat-card">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <p className="text-sm text-muted mb-2">Total Value Locked</p>
-                                    <p className="text-3xl font-bold font-display">
-                                        {totalAssetsBigInt ? `${parseFloat(formatEther(totalAssetsBigInt)).toFixed(4)} ETH` : '0.00 ETH'}
-                                    </p>
+                {/* The Machine Grid */}
+                <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
+
+                    {/* Left Column: Core Metrics (The Engine) */}
+                    <div className="md:col-span-4 space-y-8">
+                        {/* TVL Module */}
+                        <div className="loom-module group relative">
+                            {/* Connecting Line */}
+                            <div className="absolute top-1/2 -right-8 w-8 h-1 bg-ink loom-weft hidden md:block"></div>
+
+                            <div className="bg-surface border-2 border-ink p-6 shadow-[8px_8px_0_var(--color-ink)] transition-transform hover:-translate-y-1">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="w-10 h-10 bg-ink text-white flex items-center justify-center rounded-full">
+                                        <Activity className="w-5 h-5" />
+                                    </div>
+                                    <div className="font-mono text-xs font-bold text-muted">METRIC_01</div>
                                 </div>
-                                <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center">
-                                    <TrendingUp className="w-6 h-6 text-primary" />
+                                <div className="text-4xl font-display font-bold text-ink mb-1 loom-data">
+                                    {totalAssetsBigInt ? `${parseFloat(formatEther(totalAssetsBigInt)).toFixed(2)}` : '0.00'}
                                 </div>
-                            </div>
-                        </Card>
-
-                        <Card className="stat-card">
-                            <div className="flex items-start justify-between">
-                                <div>
-                                    <p className="text-sm text-muted mb-2">Current APY</p>
-                                    <p className="text-3xl font-bold font-display text-green-400">
-                                        {mockAPY}%
-                                    </p>
-                                </div>
-                                <div className="w-12 h-12 rounded-lg bg-green-500/10 flex items-center justify-center">
-                                    <Zap className="w-6 h-6 text-green-400" />
-                                </div>
-                            </div>
-                        </Card>
-                    </div>
-                </div>
-
-                {/* User Stats */}
-                <div className="mb-16">
-                    <h2 className="text-2xl font-bold mb-6">Your Portfolio</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Card className="stat-card">
-                            <p className="text-sm text-muted mb-2">Your Deposit</p>
-                            <p className="text-2xl font-bold font-display">
-                                {parseFloat(formatEther(userDeposit)).toFixed(4)} ETH
-                            </p>
-                        </Card>
-
-                        <Card className="stat-card">
-                            <p className="text-sm text-muted mb-2">Pool Share</p>
-                            <p className="text-2xl font-bold font-display text-secondary">
-                                {userPoolShare.toFixed(2)}%
-                            </p>
-                        </Card>
-
-                        <Card className="stat-card">
-                            <p className="text-sm text-muted mb-2">Estimated Yearly Yield</p>
-                            <p className="text-2xl font-bold font-display text-green-400">
-                                {(parseFloat(formatEther(userDeposit)) * mockAPY / 100).toFixed(4)} ETH
-                            </p>
-                        </Card>
-                    </div>
-                </div>
-
-                {/* NFT Status */}
-                <div className="mb-16">
-                    <h2 className="text-2xl font-bold mb-6">Genesis Synapse NFT</h2>
-                    <Card className={`stat-card ${hasNFT ? 'border-accent' : 'border-white/10'}`}>
-                        <div className="flex items-start justify-between">
-                            <div>
-                                <p className="text-sm text-muted mb-2">NFT Status</p>
-                                {hasNFT ? (
-                                    <>
-                                        <p className="text-2xl font-bold text-accent mb-4">✓ NFT Holder</p>
-                                        <ul className="space-y-2 text-sm text-muted">
-                                            <li>• 0% Protocol Fees</li>
-                                            <li>• Revenue Share Access</li>
-                                            <li>• Governance Rights</li>
-                                            <li>• Priority Support</li>
-                                        </ul>
-                                    </>
-                                ) : (
-                                    <>
-                                        <p className="text-2xl font-bold mb-4">No NFT</p>
-                                        <p className="text-sm text-muted mb-4">
-                                            Mint the Genesis Synapse NFT to unlock exclusive benefits and fee waivers.
-                                        </p>
-                                        <Button
-                                            variant="outline"
-                                            size="sm"
-                                            onClick={() => navigate('/nft')}
-                                        >
-                                            Mint NFT <ArrowRight className="ml-2 w-4 h-4" />
-                                        </Button>
-                                    </>
-                                )}
-                            </div>
-                            <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center">
-                                <Shield className="w-6 h-6 text-accent" />
+                                <div className="font-mono text-xs text-muted uppercase tracking-wider">Total Value Locked (ETH)</div>
                             </div>
                         </div>
-                    </Card>
-                </div>
 
-                {/* Quick Actions */}
-                <div>
-                    <h2 className="text-2xl font-bold mb-6">Quick Actions</h2>
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-                        <Button
-                            className="action-btn h-auto py-6 flex-col gap-2"
-                            onClick={() => navigate('/vault')}
-                        >
-                            <Wallet className="w-8 h-8" />
-                            <span className="text-lg font-bold">Manage Vault</span>
-                            <span className="text-sm opacity-80">Deposit or Withdraw</span>
-                        </Button>
+                        {/* APY Module */}
+                        <div className="loom-module group relative">
+                            {/* Connecting Line */}
+                            <div className="absolute top-1/2 -right-8 w-8 h-1 bg-secondary loom-weft hidden md:block"></div>
 
-                        <Button
-                            className="action-btn h-auto py-6 flex-col gap-2"
-                            variant="outline"
-                            onClick={() => navigate('/trade')}
-                        >
-                            <TrendingUp className="w-8 h-8" />
-                            <span className="text-lg font-bold">Trade Assets</span>
-                            <span className="text-sm opacity-80">Swap Oracle Tokens</span>
-                        </Button>
-
-                        {!hasNFT && (
-                            <Button
-                                className="action-btn h-auto py-6 flex-col gap-2"
-                                variant="outline"
-                                onClick={() => navigate('/nft')}
-                            >
-                                <Shield className="w-8 h-8" />
-                                <span className="text-lg font-bold">Mint NFT</span>
-                                <span className="text-sm opacity-80">Unlock Benefits</span>
-                            </Button>
-                        )}
+                            <div className="bg-surface border-2 border-ink p-6 shadow-[8px_8px_0_var(--color-secondary)] transition-transform hover:-translate-y-1">
+                                <div className="flex justify-between items-start mb-4">
+                                    <div className="w-10 h-10 bg-secondary text-white flex items-center justify-center rounded-sm rotate-3">
+                                        <TrendingUp className="w-5 h-5" />
+                                    </div>
+                                    <div className="font-mono text-xs font-bold text-muted">METRIC_02</div>
+                                </div>
+                                <div className="text-4xl font-display font-bold text-primary mb-1 loom-data">
+                                    {mockAPY}%
+                                </div>
+                                <div className="font-mono text-xs text-muted uppercase tracking-wider">Current Yield (APY)</div>
+                            </div>
+                        </div>
                     </div>
+
+                    {/* Middle Column: User Ledger (The Fabric) */}
+                    <div className="md:col-span-4 flex flex-col justify-center h-full">
+                        <div className="loom-module relative">
+                            {/* Vertical Line */}
+                            <div className="absolute -top-8 left-1/2 w-1 h-8 bg-ink loom-warp hidden md:block"></div>
+
+                            <div className="bg-ink text-surface p-8 shadow-[12px_12px_0_var(--color-primary)] relative overflow-hidden">
+                                {/* Abstract Shapes */}
+                                <div className="absolute -right-10 -top-10 w-32 h-32 bg-white/5 rounded-full"></div>
+                                <div className="absolute -left-10 -bottom-10 w-32 h-32 bg-white/5 rounded-full"></div>
+
+                                <div className="relative z-10">
+                                    <h3 className="font-display font-bold text-2xl mb-6 flex items-center gap-3">
+                                        <Database className="w-6 h-6" />
+                                        YOUR_LEDGER
+                                    </h3>
+
+                                    <div className="space-y-6 font-mono">
+                                        <div>
+                                            <div className="text-xs opacity-50 mb-1">DEPOSITED ASSETS</div>
+                                            <div className="text-3xl font-bold loom-data">{parseFloat(formatEther(userDeposit)).toFixed(4)} ETH</div>
+                                        </div>
+
+                                        <div className="w-full h-px bg-white/20"></div>
+
+                                        <div className="flex justify-between">
+                                            <div>
+                                                <div className="text-xs opacity-50 mb-1">POOL SHARE</div>
+                                                <div className="text-xl font-bold text-secondary loom-data">{userPoolShare.toFixed(2)}%</div>
+                                            </div>
+                                            <div className="text-right">
+                                                <div className="text-xs opacity-50 mb-1">EST. YIELD</div>
+                                                <div className="text-xl font-bold text-primary loom-data">+{((parseFloat(formatEther(userDeposit)) * mockAPY / 100) / 12).toFixed(4)}</div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            {/* Vertical Line */}
+                            <div className="absolute -bottom-8 left-1/2 w-1 h-8 bg-ink loom-warp hidden md:block"></div>
+                        </div>
+                    </div>
+
+                    {/* Right Column: Controls (The Interface) */}
+                    <div className="md:col-span-4 space-y-6">
+
+                        {/* Action Buttons */}
+                        <div className="loom-module space-y-4">
+                            <button
+                                onClick={() => navigate('/vault')}
+                                className="w-full group relative bg-background border-2 border-ink p-4 flex items-center gap-4 hover:bg-ink hover:text-white transition-all active:translate-y-1"
+                            >
+                                <div className="w-12 h-12 bg-primary text-white flex items-center justify-center font-bold font-display text-xl border-2 border-ink group-hover:border-white transition-colors">
+                                    01
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold font-display text-lg">MANAGE VAULT</div>
+                                    <div className="text-[10px] font-mono uppercase tracking-widest opacity-70">Deposit / Withdraw</div>
+                                </div>
+                                <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                            </button>
+
+                            <button
+                                onClick={() => navigate('/trade')}
+                                className="w-full group relative bg-background border-2 border-ink p-4 flex items-center gap-4 hover:bg-ink hover:text-white transition-all active:translate-y-1"
+                            >
+                                <div className="w-12 h-12 bg-secondary text-white flex items-center justify-center font-bold font-display text-xl border-2 border-ink group-hover:border-white transition-colors">
+                                    02
+                                </div>
+                                <div className="text-left flex-1">
+                                    <div className="font-bold font-display text-lg">TRADE ASSETS</div>
+                                    <div className="text-[10px] font-mono uppercase tracking-widest opacity-70">Swap / Exchange</div>
+                                </div>
+                                <ArrowRight className="w-5 h-5 opacity-0 group-hover:opacity-100 -translate-x-2 group-hover:translate-x-0 transition-all" />
+                            </button>
+                        </div>
+
+                        {/* NFT Access Module */}
+                        <div className={clsx(
+                            "loom-module border-2 border-dashed p-6 relative overflow-hidden transition-all cursor-pointer hover:bg-surface/50",
+                            hasNFT ? "border-primary bg-primary/5" : "border-ink/30"
+                        )} onClick={() => !hasNFT && navigate('/nft')}>
+
+                            <div className="flex items-center gap-4 mb-2">
+                                <div className={clsx("w-2 h-2 rounded-full animate-pulse", hasNFT ? "bg-primary" : "bg-muted")}></div>
+                                <div className="font-mono text-xs font-bold uppercase tracking-widest">Access_Control</div>
+                            </div>
+
+                            {hasNFT ? (
+                                <div className="flex items-center gap-4">
+                                    <Shield className="w-8 h-8 text-primary" />
+                                    <div>
+                                        <div className="font-bold font-display text-lg">GRANTED</div>
+                                        <div className="text-xs font-mono text-muted">Genesis Synapse Active</div>
+                                    </div>
+                                </div>
+                            ) : (
+                                <div className="flex items-center gap-4 opacity-70">
+                                    <Zap className="w-8 h-8 text-muted" />
+                                    <div>
+                                        <div className="font-bold font-display text-lg">RESTRICTED</div>
+                                        <div className="text-xs font-mono text-muted">Mint NFT to Unlock</div>
+                                    </div>
+                                </div>
+                            )}
+                        </div>
+
+                    </div>
+
                 </div>
-            </Section>
+            </div>
         </div>
     );
 };

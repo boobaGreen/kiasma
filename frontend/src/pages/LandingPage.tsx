@@ -1,7 +1,7 @@
 import { useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { Section, Button, Card } from '../components/ui';
-import { ArrowRight, Shield, Zap, Layers } from 'lucide-react';
+import { Section, Button } from '../components/ui';
+import { Layers, Zap, Shield, ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -24,9 +24,9 @@ const VAULT_ABI = [
 
 const LandingPage = () => {
     const navigate = useNavigate();
-    const heroRef = useRef(null);
-    const titleRef = useRef(null);
-    const featuresRef = useRef(null);
+    const containerRef = useRef<HTMLDivElement>(null);
+    const svgRef = useRef<SVGSVGElement>(null);
+    const pathRef = useRef<SVGPathElement>(null);
 
     const { data: totalAssets } = useReadContract({
         address: VAULT_ADDRESS,
@@ -35,200 +35,303 @@ const LandingPage = () => {
         query: { refetchInterval: 10000 }
     });
 
+    // Kinetic Line Animation (Shared Logic with AboutPage)
+    useGSAP(() => {
+        const svg = svgRef.current;
+        const path = pathRef.current;
+        if (!svg || !path) return;
+
+        let points: { x: number, y: number }[] = [];
+        const numPoints = 25;
+        const friction = 0.25;
+        const spring = 0.05;
+
+        // Initialize points off-screen or at center
+        for (let i = 0; i < numPoints; i++) {
+            points.push({ x: window.innerWidth / 2, y: window.innerHeight / 2 });
+        }
+
+        const mouse = { x: window.innerWidth / 2, y: window.innerHeight / 2 };
+
+        const onMouseMove = (e: MouseEvent) => {
+            mouse.x = e.clientX;
+            mouse.y = e.clientY;
+        };
+
+        window.addEventListener('mousemove', onMouseMove);
+
+        const update = () => {
+            // Move first point to mouse
+            points[0].x += (mouse.x - points[0].x) * friction;
+            points[0].y += (mouse.y - points[0].y) * friction;
+
+            // Move subsequent points
+            for (let i = 1; i < numPoints; i++) {
+                points[i].x += (points[i - 1].x - points[i].x) * spring;
+                points[i].y += (points[i - 1].y - points[i].y) * spring;
+            }
+
+            // Draw curve
+            let d = `M ${points[0].x} ${points[0].y}`;
+            for (let i = 1; i < numPoints - 1; i++) {
+                const xc = (points[i].x + points[i + 1].x) / 2;
+                const yc = (points[i].y + points[i + 1].y) / 2;
+                d += ` Q ${points[i].x} ${points[i].y}, ${xc} ${yc}`;
+            }
+            d += ` T ${points[numPoints - 1].x} ${points[numPoints - 1].y}`;
+
+            path.setAttribute('d', d);
+            requestAnimationFrame(update);
+        };
+
+        update();
+
+        return () => {
+            window.removeEventListener('mousemove', onMouseMove);
+        };
+    }, { scope: containerRef });
+
+    // Entrance Animations
     useGSAP(() => {
         const tl = gsap.timeline();
 
-        tl.from(titleRef.current, {
+        tl.from('.hero-char', {
             y: 100,
             opacity: 0,
-            duration: 1.2,
-            ease: 'power4.out',
-        })
-            .from('.hero-text', {
-                y: 50,
-                opacity: 0,
-                duration: 1,
-                stagger: 0.2,
-                ease: 'power3.out',
-            }, '-=0.8')
-            .from('.hero-btn', {
-                y: 20,
-                opacity: 0,
-                duration: 0.8,
-                stagger: 0.1,
-                ease: 'back.out(1.7)',
-            }, '-=0.5');
-
-        gsap.from('.feature-card', {
-            scrollTrigger: {
-                trigger: featuresRef.current,
-                start: 'top 80%',
-            },
-            y: 100,
-            opacity: 0,
+            stagger: 0.05,
             duration: 1,
-            stagger: 0.2,
-            ease: 'power3.out',
+            ease: 'power4.out'
+        })
+            .from('.hero-shape', {
+                scale: 0,
+                rotation: 180,
+                opacity: 0,
+                duration: 1.5,
+                stagger: 0.2,
+                ease: 'elastic.out(1, 0.5)'
+            }, '-=0.8');
+
+        // Suspended Shapes Interaction
+        gsap.utils.toArray('.suspended-shape').forEach((shape: any, i) => {
+            const depth = (i + 1) * 0.1;
+            const moveShape = (e: MouseEvent) => {
+                const x = (e.clientX - window.innerWidth / 2) * depth;
+                const y = (e.clientY - window.innerHeight / 2) * depth;
+                gsap.to(shape, { x, y, duration: 1, ease: 'power2.out' });
+            };
+            window.addEventListener('mousemove', moveShape);
+            return () => window.removeEventListener('mousemove', moveShape);
         });
-    }, []);
+
+    }, { scope: containerRef });
 
     return (
-        <div className="overflow-hidden">
+        <div ref={containerRef} className="min-h-screen bg-background text-ink overflow-hidden relative cursor-none">
+            {/* Custom Cursor Hint */}
+            <div className="fixed top-4 right-4 z-50 pointer-events-none mix-blend-difference text-white font-mono text-xs">
+                // KINETIC_GATEWAY_ACTIVE
+            </div>
+
+            {/* Kinetic Line SVG Layer */}
+            <svg ref={svgRef} className="fixed inset-0 w-full h-full pointer-events-none z-20" style={{ mixBlendMode: 'multiply' }}>
+                <path
+                    ref={pathRef}
+                    fill="none"
+                    stroke="#D1462F"
+                    strokeWidth="5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="opacity-90"
+                />
+            </svg>
+
             {/* Hero Section */}
-            <Section className="min-h-[90vh] flex flex-col justify-center items-center text-center relative">
-                {/* Background Elements */}
-                <div className="absolute inset-0 overflow-hidden pointer-events-none">
-                    <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[800px] h-[800px] bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
-                    <div className="absolute top-1/4 left-1/4 w-[400px] h-[400px] bg-secondary/10 rounded-full blur-[100px] animate-spin-slow" />
+            <div className="relative min-h-screen flex flex-col justify-center items-center pt-20 pb-20">
+
+                {/* Suspended Shapes Background */}
+                <div className="absolute inset-0 pointer-events-none overflow-hidden">
+                    <div className="suspended-shape absolute top-[15%] left-[10%] w-32 h-32 bg-secondary/20 rounded-full mix-blend-multiply"></div>
+                    <div className="suspended-shape absolute bottom-[20%] right-[15%] w-48 h-48 border-4 border-primary/20 rotate-45"></div>
+                    <div className="suspended-shape absolute top-[40%] right-[30%] w-24 h-24 bg-ink/5 rounded-full"></div>
                 </div>
 
-                <div ref={heroRef} className="relative z-10 max-w-5xl mx-auto">
-                    <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-8 hero-text">
-                        <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                        <span className="text-sm font-medium text-primary tracking-wider">V3.0 DEFINITIVE EDITION</span>
-                    </div>
-
-                    <h1 ref={titleRef} className="text-6xl md:text-8xl font-display font-bold mb-8 leading-tight bg-clip-text text-transparent bg-gradient-to-b from-white to-white/50">
-                        The Oracle<br />
-                        <span className="text-primary">Convergence</span> Layer
+                <div className="relative z-10 text-center max-w-5xl px-6">
+                    <h1 className="text-7xl md:text-9xl font-display font-bold leading-[0.8] tracking-tighter mb-8 mix-blend-darken">
+                        {['T', 'H', 'E', ' ', 'O', 'R', 'A', 'C', 'L', 'E'].map((char, i) => (
+                            <span key={i} className="hero-char inline-block">{char === ' ' ? '\u00A0' : char}</span>
+                        ))}
+                        <br />
+                        <span className="text-primary block mt-2">
+                            {['M', 'A', 'C', 'H', 'I', 'N', 'E'].map((char, i) => (
+                                <span key={i} className="hero-char inline-block">{char}</span>
+                            ))}
+                        </span>
                     </h1>
 
-                    <p className="text-xl md:text-2xl text-muted mb-12 max-w-3xl mx-auto hero-text">
-                        Where <span className="text-white font-bold">Real Data</span> Converges. Where Value Compounds.<br />
-                        Invest in the infrastructure that powers the Blockchain.
+                    <p className="text-xl md:text-2xl font-mono text-muted max-w-2xl mx-auto mb-12 leading-relaxed">
+                        Precision data infrastructure for the decentralized age.
+                        <br />
+                        <span className="text-sm opacity-60 mt-2 block">// SYSTEM V3.0 READY</span>
                     </p>
 
-                    <div className="flex flex-col md:flex-row items-center justify-center gap-6 hero-text">
-                        <Button size="lg" className="hero-btn group" onClick={() => navigate('/vault')}>
-                            Launch App <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
+                    <div className="flex flex-col md:flex-row gap-6 justify-center items-center">
+                        <Button
+                            size="lg"
+                            className="bg-ink text-background hover:bg-primary hover:text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all text-xl px-12 py-8"
+                            onClick={() => navigate('/vault')}
+                        >
+                            INITIATE SEQUENCE
                         </Button>
-                        <Button variant="outline" size="lg" className="hero-btn" onClick={() => window.open('https://github.com/boobaGreen/kiasma', '_blank')}>
-                            Read the Vision
+                        <Button
+                            variant="outline"
+                            size="lg"
+                            className="border-2 border-ink text-ink hover:bg-secondary hover:text-white hover:border-secondary shadow-[8px_8px_0px_0px_rgba(0,155,119,0.2)] hover:shadow-none text-xl px-12 py-8"
+                            onClick={() => window.open('https://github.com/boobaGreen/kiasma', '_blank')}
+                        >
+                            READ MANUAL
                         </Button>
+                    </div>
+                </div>
+            </div>
+
+            {/* Problem/Solution: Fragmentation vs Convergence */}
+            <Section className="py-24 relative z-10 bg-background">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center">
+                    <div className="p-8 border-l-4 border-primary bg-surface shadow-sm hover:shadow-md transition-shadow">
+                        <h3 className="text-2xl font-bold font-display mb-4">01. FRAGMENTATION</h3>
+                        <p className="font-mono text-sm leading-relaxed text-muted">
+                            The current state of the Oracle Sector is a tangled mess of disconnected nodes.
+                            High fees, siloed data, and broken user experiences.
+                        </p>
+                    </div>
+
+                    <div className="p-8 border-l-4 border-ink bg-surface shadow-sm hover:shadow-md transition-shadow md:translate-y-12">
+                        <h3 className="text-2xl font-bold font-display mb-4">02. CONVERGENCE</h3>
+                        <p className="font-mono text-sm leading-relaxed text-muted">
+                            Kiasma acts as the lens. We aggregate, optimize, and route data through a single,
+                            unified interface. The chaos becomes clarity.
+                        </p>
+                    </div>
+                </div>
+            </Section>
+
+            {/* Product Spotlight: The Oracle Basket */}
+            <Section className="py-24 relative z-10 bg-surface border-y border-ink">
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+                    <div>
+                        <div className="text-primary font-mono font-bold mb-4">// THE_PRODUCT</div>
+                        <h2 className="text-4xl md:text-5xl font-display font-bold mb-6">THE ORACLE BASKET</h2>
+                        <p className="font-mono text-lg opacity-80 mb-8">
+                            We don't just aggregate data. We aggregate value.
+                            Our core product is an ERC4626 Vault representing a curated index of the top Oracle protocols.
+                        </p>
+                        <ul className="space-y-4 font-mono text-sm">
+                            <li className="flex items-center gap-3">
+                                <div className="w-2 h-2 bg-primary rounded-full"></div>
+                                <span>Top 10 Oracle Tokens (LINK, BAND, API3...)</span>
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <div className="w-2 h-2 bg-secondary rounded-full"></div>
+                                <span>Automated Rebalancing & Thresholds</span>
+                            </li>
+                            <li className="flex items-center gap-3">
+                                <div className="w-2 h-2 bg-ink rounded-full"></div>
+                                <span>Native Staking Yield Optimization</span>
+                            </li>
+                        </ul>
+                        <div className="mt-8">
+                            <Button onClick={() => navigate('/vault')} className="bg-ink text-white hover:bg-primary transition-colors">
+                                EXPLORE VAULT <ArrowRight className="ml-2 w-4 h-4" />
+                            </Button>
+                        </div>
+                    </div>
+                    <div className="relative flex justify-center">
+                        <div className="aspect-square w-full max-w-md border-4 border-ink/10 rounded-full flex items-center justify-center animate-spin-slow bg-background">
+                            <div className="w-2/3 h-2/3 border-4 border-primary/20 rounded-full flex items-center justify-center">
+                                <div className="w-1/2 h-1/2 bg-ink/5 backdrop-blur-md rounded-full flex items-center justify-center border border-ink/10">
+                                    <Layers className="w-12 h-12 text-ink" />
+                                </div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </Section>
 
             {/* Features Section */}
-            <Section ref={featuresRef} className="py-32">
-                <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-                    <Card className="feature-card group">
-                        <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-6 group-hover:bg-primary/20 transition-colors">
-                            <Layers className="w-6 h-6 text-primary" />
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4">The Financial Engine</h3>
-                        <p className="text-muted leading-relaxed">
-                            An algorithmically managed ERC-4626 Vault. We aggregate top-tier oracle assets to generate passive, optimized yield while accumulating lobbying power.
-                        </p>
-                    </Card>
-
-                    <Card className="feature-card group">
-                        <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-6 group-hover:bg-secondary/20 transition-colors">
-                            <Zap className="w-6 h-6 text-secondary" />
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4">Programmable Layer</h3>
-                        <p className="text-muted leading-relaxed">
-                            The "1inch of Data". We route data requests to the best provider at the best price, secured by Zero-Knowledge Proofs.
-                        </p>
-                    </Card>
-
-                    <Card className="feature-card group">
-                        <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-colors">
-                            <Shield className="w-6 h-6 text-accent" />
-                        </div>
-                        <h3 className="text-2xl font-bold mb-4">Multi-Oracle Security</h3>
-                        <p className="text-muted leading-relaxed">
-                            We aggregate multiple oracles for our data and calculations to ensure maximum security and integrity. Real data, real value.
-                        </p>
-                    </Card>
-                </div>
-            </Section>
-
-            {/* Community Opportunities Section */}
-            <Section className="py-32 relative overflow-hidden">
-                {/* Background gradient */}
-                <div className="absolute inset-0 bg-gradient-to-b from-primary/5 via-secondary/5 to-transparent pointer-events-none" />
-
-                <div className="relative z-10">
-                    <div className="text-center mb-16">
-                        <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-white/5 border border-white/10 mb-6">
-                            <span className="w-2 h-2 rounded-full bg-primary animate-pulse" />
-                            <span className="text-sm font-medium text-primary tracking-wider">PEOPLE-FIRST APPROACH</span>
-                        </div>
-
-                        <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">
-                            Built <span className="text-primary">By the Community</span>,<br />
-                            For the Community
-                        </h2>
-
-                        <p className="text-xl text-muted max-w-3xl mx-auto">
-                            Inspired by <span className="text-white font-bold">Olivetti's philosophy</span>, we believe in democracy,
-                            meritocracy, and transparent compensation. Every contribution—from design to development,
-                            marketing to moderation—is valued and rewarded fairly.
-                        </p>
-                    </div>
-
-                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12">
-                        <Card className="group hover:border-primary/30 transition-colors">
-                            <div className="w-12 h-12 rounded-lg bg-primary/10 flex items-center justify-center mb-4 group-hover:bg-primary/20 transition-colors">
-                                <Layers className="w-6 h-6 text-primary" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Open Opportunities</h3>
-                            <p className="text-muted text-sm leading-relaxed">
-                                Design, development, marketing, security, moderation, governance—we need talented people across all disciplines.
-                                Opportunities are transparent and accessible to everyone.
-                            </p>
-                        </Card>
-
-                        <Card className="group hover:border-secondary/30 transition-colors">
-                            <div className="w-12 h-12 rounded-lg bg-secondary/10 flex items-center justify-center mb-4 group-hover:bg-secondary/20 transition-colors">
-                                <Zap className="w-6 h-6 text-secondary" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Meritocratic Rewards</h3>
-                            <p className="text-muted text-sm leading-relaxed">
-                                Your work is evaluated transparently by the community. Quality contributions earn tokens,
-                                NFTs, and even revenue share through special "Angel Contributor" NFTs.
-                            </p>
-                        </Card>
-
-                        <Card className="group hover:border-accent/30 transition-colors">
-                            <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-4 group-hover:bg-accent/20 transition-colors">
-                                <Shield className="w-6 h-6 text-accent" />
-                            </div>
-                            <h3 className="text-xl font-bold mb-3">Democratic Governance</h3>
-                            <p className="text-muted text-sm leading-relaxed">
-                                Every voice matters. Contributors participate in decision-making through transparent,
-                                on-chain governance. Build influence through consistent, quality work.
-                            </p>
-                        </Card>
-                    </div>
-
-                    <div className="text-center">
-                        <Button size="lg" className="group" onClick={() => navigate('/community')}>
-                            Explore Opportunities <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
-                        </Button>
-                    </div>
-                </div>
-            </Section>
-
-            {/* Stats Section */}
-            <Section className="py-20 border-y border-white/5 bg-surface/30">
-
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
+            <Section className="py-32 border-t border-ink/10 relative z-10 bg-background">
+                <div className="grid grid-cols-1 md:grid-cols-3 gap-12">
                     {[
-                        { label: 'Total Value Locked', value: totalAssets ? `${parseFloat(formatEther(totalAssets as bigint)).toFixed(2)} ETH` : '$0.00' },
-                        { label: 'APY', value: '12.5%' },
-                        { label: 'Oracle Assets', value: '3' },
-                        { label: 'Networks', value: 'Arbitrum' },
-                    ].map((stat, i) => (
-                        <div key={i}>
-                            <div className="text-4xl font-bold text-white mb-2 font-display">{stat.value}</div>
-                            <div className="text-sm text-muted uppercase tracking-wider">{stat.label}</div>
+                        {
+                            icon: Layers,
+                            title: "FINANCIAL ENGINE",
+                            desc: "An algorithmically managed ERC-4626 Vault. Aggregating top-tier oracle assets to generate passive, optimized yield.",
+                            color: "text-primary",
+                            borderColor: "border-primary"
+                        },
+                        {
+                            icon: Zap,
+                            title: "PROGRAMMABLE LAYER",
+                            desc: "The '1inch of Data'. Routing requests to the best provider at the best price, secured by Zero-Knowledge Proofs.",
+                            color: "text-secondary",
+                            borderColor: "border-secondary"
+                        },
+                        {
+                            icon: Shield,
+                            title: "MULTI-ORACLE SECURITY",
+                            desc: "Aggregating multiple oracles for our data and calculations to ensure maximum security and integrity.",
+                            color: "text-accent",
+                            borderColor: "border-accent"
+                        }
+                    ].map((feature, i) => (
+                        <div key={i} className="group relative p-8 border-2 border-ink bg-surface hover:-translate-y-2 transition-transform duration-300">
+                            <div className={`absolute top-0 left-0 w-full h-2 ${feature.borderColor.replace('border', 'bg')}`}></div>
+                            <feature.icon className={`w-12 h-12 mb-6 ${feature.color}`} strokeWidth={1.5} />
+                            <h3 className="text-2xl font-display font-bold mb-4">{feature.title}</h3>
+                            <p className="font-mono text-sm leading-relaxed text-muted">{feature.desc}</p>
                         </div>
                     ))}
                 </div>
             </Section>
-        </div>
+
+            {/* Stats Band */}
+            <div className="bg-ink text-background py-20 border-y-8 border-secondary relative z-10">
+                <div className="max-w-7xl mx-auto px-6 grid grid-cols-2 md:grid-cols-4 gap-12">
+                    {[
+                        { label: 'TVL', value: totalAssets ? `${parseFloat(formatEther(totalAssets as bigint)).toFixed(2)} ETH` : '$0.00' },
+                        { label: 'APY', value: '12.5%' },
+                        { label: 'ASSETS', value: '3' },
+                        { label: 'NET', value: 'ARB' },
+                    ].map((stat, i) => (
+                        <div key={i} className="text-center">
+                            <div className="text-5xl md:text-6xl font-display font-bold mb-2">{stat.value}</div>
+                            <div className="text-sm font-mono tracking-widest opacity-50 border-t border-white/20 pt-2 inline-block px-4">{stat.label}</div>
+                        </div>
+                    ))}
+                </div>
+            </div>
+
+            {/* Community CTA */}
+            <Section className="py-32 text-center relative z-10">
+                <div className="max-w-4xl mx-auto relative">
+                    <div className="absolute -top-10 -left-10 w-20 h-20 border-t-4 border-l-4 border-primary"></div>
+                    <div className="absolute -bottom-10 -right-10 w-20 h-20 border-b-4 border-r-4 border-secondary"></div>
+
+                    <h2 className="text-5xl md:text-7xl font-display font-bold mb-8 leading-tight">
+                        BUILT BY <span className="text-secondary">MERIT</span>.<br />
+                        GOVERNED BY <span className="text-primary">YOU</span>.
+                    </h2>
+
+                    <p className="text-xl text-muted mb-12 font-mono max-w-2xl mx-auto">
+                        Inspired by the Olivetti philosophy. Democracy, meritocracy, and transparent compensation.
+                    </p>
+
+                    <Button size="lg" className="bg-primary text-white hover:bg-ink hover:text-white shadow-[8px_8px_0px_0px_rgba(0,0,0,1)] hover:shadow-none transition-all text-xl px-12 py-6" onClick={() => navigate('/community')}>
+                        JOIN THE WORKFORCE <ArrowRight className="ml-2 w-6 h-6" />
+                    </Button>
+                </div>
+            </Section>
+
+        </div >
     );
 };
 

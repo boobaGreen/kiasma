@@ -21,16 +21,17 @@ const Navbar = () => {
     }, []);
 
     const links = [
+        { name: 'Dashboard', path: '/dashboard' },
+        { name: 'Vault', path: '/vault' },
+        { name: 'Trade', path: '/trade' },
         { name: 'About', path: '/about' },
         { name: 'Roadmap', path: '/roadmap' },
         { name: 'NFT', path: '/nft' },
-        { name: 'Vault', path: '/vault' },
-        { name: 'Trade', path: '/trade' },
         { name: 'Staking', path: '/staking' },
     ];
 
     // Check if we are on a "Demo" page
-    const isDemoPage = !['/', '/nft', '/vault'].includes(location.pathname);
+    const isDemoPage = !['/', '/nft', '/vault', '/dashboard'].includes(location.pathname);
 
     return (
         <nav ref={navRef} className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md border-b border-white/5">

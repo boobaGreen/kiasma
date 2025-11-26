@@ -128,6 +128,12 @@ const AboutPage = () => {
                                     Leveraging accumulated influence, Kiasma launches the Universal Data Router—an "Oracle Aggregator" that routes data requests to the best provider.
                                 </p>
                             </div>
+                            <div>
+                                <h3 className="text-xl font-bold text-white mb-2">Why Real Data Matters</h3>
+                                <p className="text-sm text-muted">
+                                    Web3 needs real value, and real value comes from real data. We use <span className="text-white">multiple oracles</span> for our data and calculations to ensure absolute security and integrity. No single point of failure.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

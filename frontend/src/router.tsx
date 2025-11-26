@@ -1,12 +1,13 @@
 import { createBrowserRouter } from 'react-router-dom';
 import MainLayout from './layouts/MainLayout';
 import LandingPage from './pages/LandingPage';
-import AboutPage from './pages/AboutPage';
-import RoadmapPage from './pages/RoadmapPage';
-import NftPage from './pages/NftPage';
-import TradePage from './pages/TradePage';
-import StakingPage from './pages/StakingPage';
 import VaultPage from './pages/VaultPage';
+import TradePage from './pages/TradePage';
+import AboutPage from './pages/AboutPage';
+import DashboardPage from './pages/DashboardPage';
+import NftPage from './pages/NftPage';
+import RoadmapPage from './pages/RoadmapPage';
+import StakingPage from './pages/StakingPage';
 
 export const router = createBrowserRouter([
     {
@@ -18,28 +19,32 @@ export const router = createBrowserRouter([
                 element: <LandingPage />,
             },
             {
-                path: 'about',
-                element: <AboutPage />,
+                path: 'vault',
+                element: <VaultPage />,
             },
             {
-                path: 'roadmap',
-                element: <RoadmapPage />,
-            },
-            {
-                path: 'nft',
-                element: <NftPage />,
+                path: 'dashboard',
+                element: <DashboardPage />,
             },
             {
                 path: 'trade',
                 element: <TradePage />,
             },
             {
-                path: 'staking',
-                element: <StakingPage />,
+                path: 'about',
+                element: <AboutPage />,
             },
             {
-                path: 'vault',
-                element: <VaultPage />,
+                path: 'nft',
+                element: <NftPage />,
+            },
+            {
+                path: 'roadmap',
+                element: <RoadmapPage />,
+            },
+            {
+                path: 'staking',
+                element: <StakingPage />,
             },
         ],
     },

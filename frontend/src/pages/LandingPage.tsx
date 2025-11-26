@@ -1,16 +1,39 @@
 import { useRef } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Section, Button, Card } from '../components/ui';
 import { ArrowRight, Shield, Zap, Layers } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
+import { useReadContract } from 'wagmi';
+import { formatEther } from 'viem';
+import contractAddresses from '../contract-addresses.json';
 
 gsap.registerPlugin(ScrollTrigger);
 
+const VAULT_ADDRESS = contractAddresses.KiasmaVault as `0x${string}`;
+const VAULT_ABI = [
+    {
+        "inputs": [],
+        "name": "totalAssets",
+        "outputs": [{ "internalType": "uint256", "name": "", "type": "uint256" }],
+        "stateMutability": "view",
+        "type": "function"
+    }
+];
+
 const LandingPage = () => {
+    const navigate = useNavigate();
     const heroRef = useRef(null);
     const titleRef = useRef(null);
     const featuresRef = useRef(null);
+
+    const { data: totalAssets } = useReadContract({
+        address: VAULT_ADDRESS,
+        abi: VAULT_ABI,
+        functionName: 'totalAssets',
+        query: { refetchInterval: 10000 }
+    });
 
     useGSAP(() => {
         const tl = gsap.timeline();
@@ -71,15 +94,15 @@ const LandingPage = () => {
                     </h1>
 
                     <p className="text-xl md:text-2xl text-muted mb-12 max-w-3xl mx-auto hero-text">
-                        Where Data Converges. Where Value Compounds.<br />
+                        Where <span className="text-white font-bold">Real Data</span> Converges. Where Value Compounds.<br />
                         Invest in the infrastructure that powers the Blockchain.
                     </p>
 
                     <div className="flex flex-col md:flex-row items-center justify-center gap-6 hero-text">
-                        <Button size="lg" className="hero-btn group">
+                        <Button size="lg" className="hero-btn group" onClick={() => navigate('/vault')}>
                             Launch App <ArrowRight className="ml-2 w-5 h-5 group-hover:translate-x-1 transition-transform" />
                         </Button>
-                        <Button variant="outline" size="lg" className="hero-btn">
+                        <Button variant="outline" size="lg" className="hero-btn" onClick={() => window.open('https://github.com/boobaGreen/kiasma', '_blank')}>
                             Read the Vision
                         </Button>
                     </div>
@@ -113,9 +136,9 @@ const LandingPage = () => {
                         <div className="w-12 h-12 rounded-lg bg-accent/10 flex items-center justify-center mb-6 group-hover:bg-accent/20 transition-colors">
                             <Shield className="w-6 h-6 text-accent" />
                         </div>
-                        <h3 className="text-2xl font-bold mb-4">Institutional Grade</h3>
+                        <h3 className="text-2xl font-bold mb-4">Multi-Oracle Security</h3>
                         <p className="text-muted leading-relaxed">
-                            Built with circuit breakers, auto-compounding, and Merkle exit queues. Designed for security, scalability, and trustless operation.
+                            We aggregate multiple oracles for our data and calculations to ensure maximum security and integrity. Real data, real value.
                         </p>
                     </Card>
                 </div>
@@ -125,7 +148,7 @@ const LandingPage = () => {
             <Section className="py-20 border-y border-white/5 bg-surface/30">
                 <div className="grid grid-cols-2 md:grid-cols-4 gap-12 text-center">
                     {[
-                        { label: 'Total Value Locked', value: '$0.00' },
+                        { label: 'Total Value Locked', value: totalAssets ? `${parseFloat(formatEther(totalAssets as bigint)).toFixed(2)} ETH` : '$0.00' },
                         { label: 'APY', value: '12.5%' },
                         { label: 'Oracle Assets', value: '3' },
                         { label: 'Networks', value: 'Arbitrum' },

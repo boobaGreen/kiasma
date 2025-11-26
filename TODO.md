@@ -9,8 +9,8 @@
 ## 2. Frontend Development
 - [x] **Vault Page:** Create a dedicated page for Vault interactions (APY display, Deposit/Withdraw forms).
 - [x] **Trade Page:** Fix `useWallet` error and migrate to Wagmi hooks.
-- [ ] **Landing Page:** Build the main entry point with Hero section, Value Prop, and "Enter App" CTA.
-- [ ] **Dashboard:** Create a user dashboard showing total value locked, personal yield, and NFT status.
+- [x] **Landing Page:** Build the main entry point with Hero section, Value Prop, and "Enter App" CTA.
+- [x] **Dashboard:** Create a user dashboard showing total value locked, personal yield, and NFT status.
 
 ## 3. Smart Contracts
 - [ ] **Strategy Implementation:** Flesh out the `rebalance` logic to actually swap tokens on Uniswap (currently basic structure).

@@ -214,21 +214,28 @@ const NftPage = () => {
                                 <div className="flex items-start gap-4">
                                     <div className="w-8 h-8 bg-primary text-white flex items-center justify-center font-bold border border-ink shrink-0">01</div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Fee Waiver Clearance</h3>
-                                        <p className="text-sm text-muted font-mono">Permanent 0% fees on all Vault deposits.</p>
+                                        <h3 className="font-bold text-lg">Lifetime Fee Waiver</h3>
+                                        <p className="text-sm text-muted font-mono">0% Management Fee on Vault deposits (Standard: 0.50%).</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
                                     <div className="w-8 h-8 bg-secondary text-white flex items-center justify-center font-bold border border-ink shrink-0">02</div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Revenue Share Access</h3>
-                                        <p className="text-sm text-muted font-mono">Receive 20% of protocol performance fees.</p>
+                                        <h3 className="font-bold text-lg">Protocol Revenue Share</h3>
+                                        <p className="text-sm text-muted font-mono">Receive 20% of all Performance Fees, forever.</p>
                                     </div>
                                 </div>
                                 <div className="flex items-start gap-4">
                                     <div className="w-8 h-8 bg-ink text-white flex items-center justify-center font-bold border border-ink shrink-0">03</div>
                                     <div>
-                                        <h3 className="font-bold text-lg">Governance Rights</h3>
+                                        <h3 className="font-bold text-lg">Yield Boost Multiplier</h3>
+                                        <p className="text-sm text-muted font-mono">1.2x - 1.5x boost on staking weight (Phase 2).</p>
+                                    </div>
+                                </div>
+                                <div className="flex items-start gap-4">
+                                    <div className="w-8 h-8 bg-accent text-white flex items-center justify-center font-bold border border-ink shrink-0">04</div>
+                                    <div>
+                                        <h3 className="font-bold text-lg">Governance Council</h3>
                                         <p className="text-sm text-muted font-mono">Veto power on critical security upgrades.</p>
                                     </div>
                                 </div>

@@ -1,6 +1,7 @@
 import { useRef, useState } from 'react';
 import { Section, Button, Card } from '../components/ui';
-import { Users, Vote, Star, Award, ArrowUpRight, Shield, Coins } from 'lucide-react';
+
+import { Users, Vote, Award, ArrowUpRight, Shield, Coins, PenTool, Code, Megaphone, Gavel, Scale, ArrowRight } from 'lucide-react';
 import gsap from 'gsap';
 import { useGSAP } from '@gsap/react';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
@@ -127,6 +128,44 @@ const CommunityPage = () => {
                 </div>
             </Section>
 
+            {/* Contribution Opportunities */}
+            <Section className="pb-32">
+                <div className="text-center mb-16">
+                    <h2 className="text-4xl font-display font-bold mb-4">OPEN POSITIONS</h2>
+                    <p className="font-mono text-muted max-w-2xl mx-auto">
+                        Kiasma is an open organization. We need talents in every field.
+                        Find your role and start building the future.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {[
+                        { icon: PenTool, title: "DESIGN & CREATIVE", roles: ["UI/UX Design", "Graphic Design", "NFT Art", "Motion Design"], reward: "Tokens + Revenue Share" },
+                        { icon: Code, title: "DEVELOPMENT", roles: ["Smart Contracts", "Frontend (React)", "Backend & API", "Security & QA"], reward: "Tokens + Bounties" },
+                        { icon: Megaphone, title: "MARKETING", roles: ["Content Creation", "Social Media", "Community Building", "Events"], reward: "Tokens + Growth Bonus" },
+                        { icon: Shield, title: "SECURITY", roles: ["Auditing", "Bug Bounty", "Risk Assessment"], reward: "High Bounties + NFT" },
+                        { icon: Gavel, title: "MODERATION", roles: ["Discord Mod", "User Support", "Documentation"], reward: "Monthly Stipend" },
+                        { icon: Scale, title: "GOVERNANCE", roles: ["Proposal Creation", "Strategy", "Legal Research"], reward: "Governance Power" },
+                    ].map((dept, i) => (
+                        <div key={i} className="border-2 border-ink p-6 bg-surface hover:bg-ink hover:text-white group transition-colors duration-300">
+                            <dept.icon className="w-8 h-8 mb-4 text-primary group-hover:text-white" />
+                            <h3 className="text-xl font-display font-bold mb-4">{dept.title}</h3>
+                            <ul className="mb-6 space-y-2 font-mono text-sm opacity-80">
+                                {dept.roles.map((role, j) => (
+                                    <li key={j} className="flex items-center gap-2">
+                                        <span className="w-1 h-1 bg-current rounded-full"></span>
+                                        {role}
+                                    </li>
+                                ))}
+                            </ul>
+                            <div className="pt-4 border-t border-current/20 font-mono text-xs font-bold flex items-center gap-2">
+                                <Coins className="w-4 h-4" /> {dept.reward}
+                            </div>
+                        </div>
+                    ))}
+                </div>
+            </Section>
+
             {/* The Economic Engine */}
             <Section className="pb-32">
                 <div className="mb-16">
@@ -175,55 +214,85 @@ const CommunityPage = () => {
                         </div>
                     </div>
 
-                    {/* Chart 2: Contributor Roles Matrix */}
+                    {/* Chart 2: Contributor Roles Matrix (The Ladder) */}
                     <div className="border-2 border-ink p-8 bg-surface shadow-[8px_8px_0_#1a1a1a]">
                         <h3 className="text-xl font-display font-bold mb-8 flex items-center gap-2">
                             <Users className="w-5 h-5 text-secondary" />
-                            CONTRIBUTOR_ROLES
+                            CONTRIBUTOR_LADDER
                         </h3>
-                        <div className="space-y-6">
-                            {/* Angel Contributor */}
-                            <div className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="font-bold font-display text-lg">ANGEL CONTRIBUTOR</div>
-                                    <div className="bg-primary text-ink text-xs font-bold px-2 py-1">WORK FOR EQUITY</div>
+                        <div className="space-y-4">
+                            {[
+                                { title: "1. CONTRIBUTOR", subtitle: "Entry Level", desc: "First approved tasks. Learning the ropes.", reward: "$KMA Tokens" },
+                                { title: "2. ACTIVE CONTRIBUTOR", subtitle: "Intermediate", desc: "Consistent quality. Complex tasks.", reward: "$KMA + Bonus" },
+                                { title: "3. CORE CONTRIBUTOR", subtitle: "Advanced", desc: "Key project member. Strategic decisions.", reward: "Revenue Share + Governance" },
+                                { title: "4. ANGEL CONTRIBUTOR", subtitle: "Elite", desc: "Exceptional impact. Founding member status.", reward: "Angel NFT (Lifetime Equity)" },
+                            ].map((level, i) => (
+                                <div key={i} className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors relative overflow-hidden">
+                                    <div className="absolute top-0 left-0 w-1 h-full bg-ink/10 group-hover:bg-primary transition-colors"></div>
+                                    <div className="pl-4">
+                                        <div className="flex justify-between items-center mb-1">
+                                            <div className="font-bold font-display text-lg">{level.title}</div>
+                                            <div className="font-mono text-[10px] uppercase tracking-wider bg-ink/10 px-2 py-0.5 rounded">{level.subtitle}</div>
+                                        </div>
+                                        <p className="text-xs font-mono text-muted mb-2">{level.desc}</p>
+                                        <div className="text-xs font-mono font-bold text-primary flex items-center gap-1">
+                                            <Award className="w-3 h-3" /> {level.reward}
+                                        </div>
+                                    </div>
                                 </div>
-                                <p className="text-xs font-mono text-muted mb-2">
-                                    Early devs, marketers, and community builders who work for future value.
-                                </p>
-                                <div className="flex items-center gap-2 text-xs font-mono font-bold">
-                                    <Award className="w-4 h-4" /> REWARD: ANGEL NFT (Governance + Yield)
-                                </div>
-                            </div>
-
-                            {/* Angel Investor */}
-                            <div className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="font-bold font-display text-lg">ANGEL INVESTOR</div>
-                                    <div className="bg-secondary text-ink text-xs font-bold px-2 py-1">CAPITAL FOR EQUITY</div>
-                                </div>
-                                <p className="text-xs font-mono text-muted mb-2">
-                                    External backers who provide early capital (ETH/Stable) to fund operations.
-                                </p>
-                                <div className="flex items-center gap-2 text-xs font-mono font-bold">
-                                    <Star className="w-4 h-4" /> REWARD: ANGEL NFT (Governance + Yield)
-                                </div>
-                            </div>
-
-                            {/* Core Team (Phase 2+) */}
-                            <div className="group border border-ink/20 p-4 hover:bg-ink/5 transition-colors">
-                                <div className="flex justify-between items-center mb-2">
-                                    <div className="font-bold font-display text-lg">CORE TEAM</div>
-                                    <div className="bg-ink text-white text-xs font-bold px-2 py-1">WORK FOR REVENUE</div>
-                                </div>
-                                <p className="text-xs font-mono text-muted mb-2">
-                                    Operational team paid in tokens or stablecoins as revenue scales.
-                                </p>
-                                <div className="flex items-center gap-2 text-xs font-mono font-bold">
-                                    <Coins className="w-4 h-4" /> REWARD: SALARY + TOKENS
-                                </div>
-                            </div>
+                            ))}
                         </div>
+                    </div>
+                </div>
+            </Section>
+
+            {/* Community Roadmap */}
+            <Section className="pb-32">
+                <div className="border-t border-ink pt-16">
+                    <h2 className="text-3xl font-display font-bold mb-12 text-center">COMMUNITY ROADMAP</h2>
+                    <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                        {[
+                            { phase: "PHASE 1: FOUNDATION", time: "Q1-Q2 2026", items: ["Launch Discord & GitHub", "Define Roles & Bounties", "Contribution Tracking System", "First Token Rewards"] },
+                            { phase: "PHASE 2: GROWTH", time: "Q3-Q4 2026", items: ["Expand Contributor Team (50+)", "Launch Governance Framework", "First Community Proposals", "Angel NFT Assignments"] },
+                            { phase: "PHASE 3: MATURITY", time: "2027+", items: ["Full DAO Transition", "100% Community-Driven", "Global Expansion", "Mentorship Programs"] },
+                        ].map((p, i) => (
+                            <div key={i} className="relative pl-8 border-l-2 border-ink/20">
+                                <div className="absolute -left-[9px] top-0 w-4 h-4 rounded-full bg-background border-2 border-ink"></div>
+                                <div className="font-mono text-xs font-bold text-primary mb-2">{p.time}</div>
+                                <h3 className="text-xl font-bold font-display mb-4">{p.phase}</h3>
+                                <ul className="space-y-2 font-mono text-sm text-muted">
+                                    {p.items.map((item, j) => (
+                                        <li key={j}>- {item}</li>
+                                    ))}
+                                </ul>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            </Section>
+
+            {/* How to Start CTA */}
+            <Section className="pb-20 text-center">
+                <div className="bg-ink text-background p-12 relative overflow-hidden">
+                    <div className="relative z-10">
+                        <h2 className="text-4xl font-display font-bold mb-6">READY TO BUILD?</h2>
+                        <div className="flex flex-col md:flex-row justify-center items-center gap-8 mb-8">
+                            {[
+                                { step: "1", text: "JOIN DISCORD" },
+                                { step: "2", text: "INTRODUCE YOURSELF" },
+                                { step: "3", text: "PICK A TASK" },
+                                { step: "4", text: "GET REWARDED" }
+                            ].map((s, i) => (
+                                <div key={i} className="flex items-center gap-3">
+                                    <div className="w-8 h-8 rounded-full border border-white/20 flex items-center justify-center font-mono font-bold text-primary">{s.step}</div>
+                                    <span className="font-bold font-display">{s.text}</span>
+                                    {i < 3 && <ArrowRight className="hidden md:block w-4 h-4 text-white/20" />}
+                                </div>
+                            ))}
+                        </div>
+                        <Button size="lg" className="bg-primary text-white hover:bg-white hover:text-ink border-2 border-transparent hover:border-white transition-all" onClick={() => window.open('https://discord.gg/kiasma', '_blank')}>
+                            ENTER THE COMMUNITY
+                        </Button>
                     </div>
                 </div>
             </Section>
@@ -268,7 +337,7 @@ const CommunityPage = () => {
                     ))}
                 </div>
             </Section>
-        </div>
+        </div >
     );
 };
 

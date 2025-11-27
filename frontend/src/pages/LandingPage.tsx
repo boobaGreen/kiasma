@@ -194,6 +194,33 @@ const LandingPage = () => {
                 </div>
             </div>
 
+            {/* Vision & Principles: Olivetti Inspiration */}
+            <Section className="py-24 relative z-10 bg-surface border-y border-ink">
+                <div className="text-center max-w-4xl mx-auto mb-16">
+                    <div className="text-primary font-mono font-bold mb-4">// THE_PHILOSOPHY</div>
+                    <h2 className="text-4xl md:text-6xl font-display font-bold mb-6">COMMUNITY-FIRST INFRASTRUCTURE</h2>
+                    <p className="text-xl font-mono text-muted leading-relaxed">
+                        Inspired by the vision of <span className="text-ink font-bold">Adriano Olivetti</span>.
+                        We believe that technology should serve humanity, not the other way around.
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
+                    {[
+                        { title: "PEOPLE > PROFIT", desc: "The well-being of our contributors is fundamental to our success." },
+                        { title: "RADICAL DEMOCRACY", desc: "Every voice is heard. Decisions are made by the community, for the community." },
+                        { title: "TRANSPARENT MERITOCRACY", desc: "Talent and effort determine influence, not capital. Rewards are open and verifiable." },
+                        { title: "FAIR COMPENSATION", desc: "We pay with what we have: Equity for believers, Revenue for the long game." }
+                    ].map((item, i) => (
+                        <div key={i} className="p-6 border border-ink/20 hover:border-ink transition-colors bg-background">
+                            <div className="font-mono text-xs font-bold text-primary mb-2">0{i + 1}</div>
+                            <h3 className="text-lg font-bold font-display mb-3">{item.title}</h3>
+                            <p className="text-sm font-mono text-muted">{item.desc}</p>
+                        </div>
+                    ))}
+                </div>
+            </Section>
+
             {/* Problem/Solution: Fragmentation vs Convergence */}
             <Section className="py-24 relative z-10 bg-background">
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-12 md:gap-24 items-center">
